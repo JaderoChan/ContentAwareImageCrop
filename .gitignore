@@ -1,0 +1,13 @@
+.vscode/
+build/
+tmp/
+vs/
+
+*.o
+*.a
+*.so
+*.lib
+*.dll
+*.exe
+
+.DS_Store
