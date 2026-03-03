@@ -1,8 +1,8 @@
 #include <cstdio>
 #include <iostream>
 
-#include "base/color_similarity.hpp"
-#include "base/image.hpp"
+#include <base/color_similarity.hpp>
+#include <base/image.hpp>
 
 #include "image_utility.hpp"
 
