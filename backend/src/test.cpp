@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "base/color_similarity.hpp"
-#include "base/mat.hpp"
+#include "base/image.hpp"
 
 #include "image_utility.hpp"
 

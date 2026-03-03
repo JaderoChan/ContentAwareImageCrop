@@ -1,42 +1,57 @@
 #pragma once
 
 #include <cassert>
-#include <string>
 #include <vector>
 
-#include "color.hpp"
-#include "line.hpp"
+#include "pos.hpp"
 
 template <typename T>
 struct Mat
 {
 public:
     Mat() = default;
-    Mat(int width, int height) : width(width), height(height), data(3 * width * height) {}
+    Mat(int rows, int cols) : rows(rows), cols(cols), data(3 * rows * cols) {}
+
+    bool contains(int row, int col) const
+    {
+        return row >= 0 && row < rows && col >= 0 && col < cols;
+    }
+
+    bool contains(const IPos& pos) const
+    {
+        return pos.y >= 0 && pos.y < rows && pos.x >= 0 && pos.x < cols;
+    }
 
     template <typename U>
     const U& at(int row, int col) const
     {
-        assert(row >= 0 && row < height);
-        assert(col >= 0 && col < width);
-
+        assert(contains(row, col));
         return *reinterpret_cast<const U*>(&(data.data()[row * col * 3]));
     }
 
     template <typename U>
     U& at(int row, int col)
     {
-        assert(row >= 0 && row < height);
-        assert(col >= 0 && col < width);
-
+        assert(contains(row, col));
         return *reinterpret_cast<U*>(&(data.data()[row * col * 3]));
     }
 
-    int width = 0;
-    int height = 0;
+    template <typename U>
+    const U& at(const IPos& pos) const
+    {
+        assert(contains(pos));
+        return *reinterpret_cast<const U*>(&(data.data()[pos.x * pos.y * 3]));
+    }
+
+    template <typename U>
+    U& at(const IPos& pos)
+    {
+        assert(contains(pos));
+        return *reinterpret_cast<U*>(&(data.data()[pos.x * pos.y * 3]));
+    }
+
+    int rows = 0;
+    int cols = 0;
     std::vector<T> data;
 };
 
-using Image = Mat<uint8_t>;
-
-Image loadImageFromFile(const std::string& filepath);
