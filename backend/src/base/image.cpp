@@ -4,12 +4,16 @@
 
 Image loadImageFromFile(const std::string& filepath)
 {
-    Image image;
+    int rows = 0, cols = 0, channel = 0;
+    auto data = stbi_load(filepath.c_str(), &cols, &rows, &channel, 3);
 
-    int channels;
-    auto data = stbi_load(filepath.c_str(), &image.cols, &image.rows, &channels, 3);
-    image.data.assign(data, data + image.cols * image.rows);
+    if (rows == 0 || cols == 0 || channel == 0)
+    {
+        stbi_image_free(data);
+        return Image();
+    }
+
+    Image image(rows, cols, 3, data, rows * cols * 3);
     stbi_image_free(data);
-
     return image;
 }

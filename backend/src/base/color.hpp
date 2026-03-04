@@ -39,8 +39,8 @@ inline HsvColor rgbToHsv(const RgbColor& rgb)
     double ng = (double) rgb.g / UINT8_MAX;
     double nb = (double) rgb.b / UINT8_MAX;
 
-    auto max = std::max({nr, ng, nb});
-    auto min = std::min({nr, ng, nb});
+    double max = std::max({nr, ng, nb});
+    double min = std::min({nr, ng, nb});
     if (max == min)
         hsv.h = 0.0;
     else if (max == nr && ng >= nb)
