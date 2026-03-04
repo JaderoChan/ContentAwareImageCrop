@@ -2,6 +2,7 @@
 build/
 tmp/
 vs/
+test/
 
 *.o
 *.a
