@@ -38,7 +38,14 @@ target_link_libraries(
 # 导出库
 
 # Temp
-add_custom_command(
-    TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND windeployqt ${CMAKE_BINARY_DIR}/backend/${PROJECT_NAME}.exe
-)
+if(WIN32)
+    set(QTDEPLOY windeployqt)
+    set(TARGET_SUFFIX ".exe")
+    add_custom_command(
+        TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${QTDEPLOY} ${CMAKE_BINARY_DIR}/backend/${PROJECT_NAME}${TARGET_SUFFIX}
+    )
+elseif(APPLE)
+    set(QTDEPLOY macdeployqt)
+    set(TARGET_SUFFIX "")
+endif()

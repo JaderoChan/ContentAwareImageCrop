@@ -11,7 +11,7 @@
 
 Image limitImageScale(const Image& img, int width, int height)
 {
-    assert(width > 0 && height > 0);
+    assert(width > 0 && height > 0 && !img.isEmpty());
 
     if (img.cols <= width && img.rows <= height)
         return img;
@@ -25,52 +25,39 @@ Image limitImageScale(const Image& img, int width, int height)
 
     Image scaled(newRows, newCols, img.channel);
 
-    double rowScale = static_cast<double>(img.rows) / newRows;
-    double colScale = static_cast<double>(img.cols) / newCols;
-
-    for (int dr = 0; dr < newRows; ++dr)
+    for (int row = 0; row < newRows; ++row)
     {
-        double srcRowStart = dr * rowScale;
-        double srcRowEnd = (dr + 1) * rowScale;
-
-        int rMin = static_cast<int>(std::floor(srcRowStart));
-        int rMax = std::min(static_cast<int>(std::ceil(srcRowEnd)) - 1, img.rows - 1);
-
-        for (int dc = 0; dc < newCols; ++dc)
+        for (int col = 0; col < newCols; ++col)
         {
-            double srcColStart = dc * colScale;
-            double srcColEnd = (dc + 1) * colScale;
+            double srcX = col / ratio;
+            double srcY = row / ratio;
 
-            int cMin = static_cast<int>(std::floor(srcColStart));
-            int cMax = std::min(static_cast<int>(std::ceil(srcColEnd)) - 1, img.cols - 1);
+            int x1 = std::floor(srcX);
+            int y1 = std::floor(srcY);
+            int x2 = std::min(x1 + 1, img.cols - 1);
+            int y2 = std::min(y1 + 1, img.rows - 1);
 
-            double sumR = 0.0, sumG = 0.0, sumB = 0.0;
-            double totalWeight = 0.0;
+            double dx = srcX - x1;
+            double dy = srcY - y1;
 
-            for (int sr = rMin; sr <= rMax; ++sr)
-            {
-                double rOverlap = std::min(static_cast<double>(sr + 1), srcRowEnd) -
-                    std::max(static_cast<double>(sr), srcRowStart);
+            const auto& p11 = img.at<RgbColor>(y1, x1);
+            const auto& p12 = img.at<RgbColor>(y1, x2);
+            const auto& p21 = img.at<RgbColor>(y2, x1);
+            const auto& p22 = img.at<RgbColor>(y2, x2);
 
-                for (int sc = cMin; sc <= cMax; ++sc)
-                {
-                    double cOverlap = std::min(static_cast<double>(sc + 1), srcColEnd) -
-                        std::max(static_cast<double>(sc), srcColStart);
-
-                    double weight = rOverlap * cOverlap;
-                    const auto& rgb = img.at<RgbColor>(sr, sc);
-
-                    sumR += rgb.r * weight;
-                    sumG += rgb.g * weight;
-                    sumB += rgb.b * weight;
-                    totalWeight += weight;
-                }
-            }
-
-            auto& dst = scaled.at<RgbColor>(dr, dc);
-            dst.r = static_cast<uint8_t>(std::min(std::round(sumR / totalWeight), 255.0));
-            dst.g = static_cast<uint8_t>(std::min(std::round(sumG / totalWeight), 255.0));
-            dst.b = static_cast<uint8_t>(std::min(std::round(sumB / totalWeight), 255.0));
+            auto& dst = scaled.at<RgbColor>(row, col);
+            // 双线性插值
+            double dyRem = 1.0 - dy;
+            double dxRem = 1.0 - dx;
+            dst.r = static_cast<uint8_t>(
+                dyRem * (dxRem * p11.r + dx * p12.r) +
+                dy * (dxRem * p21.r + dx * p22.r));
+            dst.g = static_cast<uint8_t>(
+                dyRem * (dxRem * p11.g + dx * p12.g) +
+                dy * (dxRem * p21.g + dx * p22.g));
+            dst.b = static_cast<uint8_t>(
+                dyRem * (dxRem * p11.b + dx * p12.b) +
+                dy * (dxRem * p21.b + dx * p22.b));
         }
     }
 

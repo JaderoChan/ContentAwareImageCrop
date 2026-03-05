@@ -11,7 +11,7 @@ struct Mat
 public:
     Mat() = default;
     Mat(int rows, int cols, int channel, const T& value = T())
-        : rows(rows), cols(cols), channel(channel), _d(channel * rows * cols, value) {}
+        : rows(rows), cols(cols), channel(channel), _d(rows * cols * channel, value) {}
     Mat(int rows, int cols, int channel, const T* data, size_t dataSize)
         : rows(rows), cols(cols), channel(channel), _d(data, data + dataSize) {}
 

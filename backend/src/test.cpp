@@ -32,7 +32,16 @@ int main()
 
     const Image energyImg = energyMatToGrayImage(normalizeEnergyMat(createEnergyMat(scaledImg)));
 
-    const auto qimg = QImage(energyImg.data(), energyImg.cols, energyImg.rows, QImage::Format_Grayscale8);
+    const auto qimg = QImage(
+        energyImg.data(), energyImg.cols, energyImg.rows, energyImg.cols, QImage::Format_Grayscale8);
+    // const auto qimg = QImage(
+    //     scaledImg.data(), scaledImg.cols, scaledImg.rows, 3 * scaledImg.cols, QImage::Format_RGB888);
+    if (qimg.isNull())
+    {
+        printf("The Qt image is Null.\n");
+        exit(1);
+    }
+
     if (qimg.save(outFilepath.c_str()))
         printf("Save image successfully.\n");
     else
