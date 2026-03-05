@@ -19,7 +19,7 @@ int main()
     std::string outFilepath;
     std::cin >> outFilepath;
 
-    const Image img = loadImageFromFile(inFilepath);
+    Image img = loadImageFromFile(inFilepath);
     if (img.isEmpty())
     {
         printf("Failed to load image.\n");
@@ -27,12 +27,12 @@ int main()
     }
     printf("Origin size: [%d, %d].\n", img.cols, img.rows);
 
-    const Image scaledImg = limitImageScale(img, 720, 720);
+    Image scaledImg = limitImageScale(img, 720, 720);
     printf("Scaled size: [%d, %d].\n", scaledImg.cols, scaledImg.rows);
 
-    const Image energyImg = energyMatToGrayImage(normalizeEnergyMat(createEnergyMat(scaledImg)));
+    Image energyImg = energyMatToGrayImage(normalizeEnergyMat(createEnergyMat(scaledImg)));
 
-    const auto qimg = QImage(
+    auto qimg = QImage(
         energyImg.data(), energyImg.cols, energyImg.rows, energyImg.cols, QImage::Format_Grayscale8);
     // const auto qimg = QImage(
     //     scaledImg.data(), scaledImg.cols, scaledImg.rows, 3 * scaledImg.cols, QImage::Format_RGB888);
