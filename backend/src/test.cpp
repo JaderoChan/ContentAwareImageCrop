@@ -8,6 +8,7 @@
 
 #include "image_utility.hpp"
 #include "energy_mat.hpp"
+#include "content_aware_image_crop.hpp"
 
 int main()
 {
@@ -32,10 +33,15 @@ int main()
 
     Image energyImg = energyMatToGrayImage(normalizeEnergyMat(createEnergyMat(scaledImg)));
 
-    auto qimg = QImage(
-        energyImg.data(), energyImg.cols, energyImg.rows, energyImg.cols, QImage::Format_Grayscale8);
-    // const auto qimg = QImage(
-    //     scaledImg.data(), scaledImg.cols, scaledImg.rows, 3 * scaledImg.cols, QImage::Format_RGB888);
+    auto line = getMinimumEnergyLine(scaledImg);
+    for (int i = 0; i < line.size(); ++i)
+        printf("%d [%d, %d]\n", i + 1, line[i].x, line[i].y);
+    scaledImg = highlightLine(scaledImg, line, RgbColor(255, 0, 0));
+
+    // auto qimg = QImage(
+    //     energyImg.data(), energyImg.cols, energyImg.rows, energyImg.cols, QImage::Format_Grayscale8);
+    const auto qimg = QImage(
+        scaledImg.data(), scaledImg.cols, scaledImg.rows, 3 * scaledImg.cols, QImage::Format_RGB888);
     if (qimg.isNull())
     {
         printf("The Qt image is Null.\n");
