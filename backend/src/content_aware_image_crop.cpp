@@ -3,7 +3,6 @@
 #include "energy_mat.hpp"
 #include "utilities.hpp"
 
-
 Image removeMinimumEnergyLines(const Image& img, int removeToLines)
 {
     Image res = img;
