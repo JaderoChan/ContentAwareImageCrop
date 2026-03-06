@@ -6,6 +6,7 @@
 Image removeMinimumEnergyLines(const Image& img, int removeToLines)
 {
     Image res = img;
+
     for (int i = 0; i < removeToLines; ++i)
     {
         Image scaledImg = limitImageScale(res, 512, 512);
@@ -13,5 +14,6 @@ Image removeMinimumEnergyLines(const Image& img, int removeToLines)
         line = mapLineToOriginalSize(line, res.rows, res.cols, scaledImg.rows, scaledImg.cols);
         res = removeLine(res, line);
     }
+
     return res;
 }
