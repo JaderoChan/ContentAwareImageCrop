@@ -28,17 +28,7 @@ int main()
     }
     printf("Origin size: [%d, %d].\n", img.cols, img.rows);
 
-    Image scaledImg = limitImageScale(img, 720, 720);
-    printf("Scaled size: [%d, %d].\n", scaledImg.cols, scaledImg.rows);
-
-    auto energyMat = createEnergyMat(scaledImg);
-    normalizeEnergyMat(energyMat);
-    Image energyImg = energyMatToGrayImage(energyMat);
-
-    auto line = getMinimumEnergyLine(scaledImg);
-    line = mapLineToOriginalSize(line, ISize(img.cols, img.rows), ISize(scaledImg.cols, scaledImg.rows));
-    highlightLine(img, line, RgbColor(255, 0, 0));
-    img = removeLine(img, line);
+    img = removeMinimumEnergyLines(img, img.cols * 0.5);
 
     // auto qimg = QImage(
     //     energyImg.data(), energyImg.cols, energyImg.rows, energyImg.cols, QImage::Format_Grayscale8);
