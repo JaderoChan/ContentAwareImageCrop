@@ -6,7 +6,7 @@
 #include <algorithm>
 
 #include <base/color_similarity.hpp>
-#include <base/pos.hpp>
+#include <base/vec2d.hpp>
 #include <base/rgb.hpp>
 
 Image limitImageScale(const Image& img, int width, int height)
@@ -93,3 +93,63 @@ double computePointEnergy(const Image& img, int row, int col,
     assert(validPoint != 0);
     return 1.0 - energy / validPoint;
 }
+
+std::vector<IPos> mapLineToOriginalSize(
+    const std::vector<IPos>& scaledLine,
+    const ISize& originalSize,
+    const ISize& scaledSize)
+{
+    std::vector<IPos> originalLine;
+    originalLine.reserve(originalSize.y); // originalSize.y 是 rows
+
+    double ratioX = static_cast<double>(originalSize.x) / scaledSize.x;
+    double ratioY = static_cast<double>(originalSize.y) / scaledSize.y;
+
+    for (int row = 0; row < originalSize.y; ++row)
+    {
+        // 找到原始图中当前行对应的缩放图中的行索引
+        int scaledRow = std::clamp(static_cast<int>(std::round(row / ratioY)), 0, scaledSize.y - 1);
+
+        // 获取缩放图中该行对应的列坐标，并映射回原图列坐标
+        double scaledCol = scaledLine[scaledRow].x;
+        int originalCol = std::clamp(static_cast<int>(std::round(scaledCol * ratioX)), 0, originalSize.x - 1);
+
+        originalLine.emplace_back(originalCol, row);
+    }
+
+    return originalLine;
+}
+
+void highlightLine(Image& img, const std::vector<IPos>& line, const RgbColor& color)
+{
+    for (const auto& pt : line)
+        img.at<RgbColor>(pt) = color;
+}
+
+Image removeLine(const Image& img, const std::vector<IPos>& line)
+{
+    Image dst(img.rows, img.cols - 1, img.channel);
+
+    for (int row = 0; row < img.rows; ++row)
+    {
+        int colToRemove = line[row].x;
+
+        const uint8_t* pSrcRow = &img.data()[row * img.cols * img.channel];
+        uint8_t* pDstRow = &dst.data()[row * dst.cols * dst.channel];
+
+        int firstPartCount = colToRemove;
+        if (firstPartCount > 0) {
+            memcpy(pDstRow, pSrcRow, firstPartCount * img.channel);
+        }
+
+        int secondPartCount = img.cols - colToRemove - 1;
+        if (secondPartCount > 0) {
+            memcpy(pDstRow + firstPartCount * img.channel,
+                   pSrcRow + (colToRemove + 1) * img.channel,
+                   secondPartCount * img.channel);
+        }
+    }
+
+    return dst;
+}
+

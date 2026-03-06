@@ -4,6 +4,8 @@
 
 Mat<double> createEnergyMat(const Image& img);
 
-Mat<double> normalizeEnergyMat(const Mat<double>& energyMat);
+void normalizeEnergyMat(Mat<double>& energyMat);
 
 Image energyMatToGrayImage(const Mat<double>& energyMat);
+
+std::vector<IPos> getMinimumEnergyLine(const Image& img);

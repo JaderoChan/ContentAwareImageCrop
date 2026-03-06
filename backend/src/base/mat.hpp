@@ -3,7 +3,7 @@
 #include <cassert>
 #include <vector>
 
-#include "pos.hpp"
+#include "vec2d.hpp"
 
 template <typename T>
 struct Mat

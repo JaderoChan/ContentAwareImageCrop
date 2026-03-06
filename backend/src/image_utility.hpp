@@ -3,6 +3,8 @@
 #include <vector>
 
 #include <base/image.hpp>
+#include <base/vec2d.hpp>
+#include <base/color.hpp>
 
 /**
  * @brief 保持比例的缩小图像尺寸直到其尺寸符合给定的尺寸限制。
@@ -18,3 +20,18 @@ Image limitImageScale(const Image& img, int width, int height);
  */
 double computePointEnergy(const Image& img, int row, int col,
     double rWeight = 1.0, double gWeight = 1.0, double bWeight = 1.0);
+
+/**
+ * @brief 将缩放后图像中的线条坐标映射回原始图像坐标系。
+ * @param scaledLine 缩放后图像中的线条。
+ * @param originalSize 原始图像的尺寸（rows, cols）。
+ * @param scaledSize 缩放后图像的尺寸（rows, cols）。
+ */
+std::vector<IPos> mapLineToOriginalSize(
+    const std::vector<IPos>& scaledLine,
+    const ISize& originalSize,
+    const ISize& scaledSize);
+
+void highlightLine(Image& img, const std::vector<IPos>& line, const RgbColor& color);
+
+Image removeLine(const Image& img, const std::vector<IPos>& line);
