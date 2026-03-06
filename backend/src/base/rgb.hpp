@@ -2,8 +2,6 @@
 
 #include <cstdint>
 
-#include "hsv.hpp"
-
 struct RgbColor
 {
     constexpr RgbColor() = default;

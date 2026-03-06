@@ -4,7 +4,6 @@
 
 #include "rgb.hpp"
 #include "hsv.hpp"
-#include "color_similarity.hpp"
 
 inline RgbColor hsvToRgb(const HsvColor& hsv)
 {

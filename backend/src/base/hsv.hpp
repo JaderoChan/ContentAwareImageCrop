@@ -1,9 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
-#include "rgb.hpp"
-
 struct HsvColor
 {
     constexpr HsvColor() = default;

@@ -3,7 +3,38 @@
 #include <cfloat>
 #include <array>
 
-#include "image_utility.hpp"
+#include "color_similarity.hpp"
+#include "utilities.hpp"
+
+double computePointEnergy(const Image& img, int row, int col,
+    double rWeight, double gWeight, double bWeight)
+{
+    int validPoint = 0;
+    double energy = 0.0;
+    const auto& currPtColor = img.at<RgbColor>(row, col);
+
+    std::array<IPos, 4> pts{
+        IPos(col - 1, row), ///< Left
+        IPos(col, row - 1), ///< Top
+        IPos(col + 1, row), ///< Right
+        IPos(col, row + 1), ///< Bottom
+    };
+
+    for (const auto& pt : pts)
+    {
+        if (img.contains(pt))
+        {
+            energy += computeColorSimilarity(
+                currPtColor, img.at<RgbColor>(pt),
+                rWeight, gWeight, bWeight
+            );
+            validPoint++;
+        }
+    }
+
+    assert(validPoint != 0);
+    return 1.0 - energy / validPoint;
+}
 
 Mat<double> createEnergyMat(const Image& img)
 {
@@ -20,15 +51,15 @@ Mat<double> createEnergyMat(const Image& img)
     return energyMat;
 }
 
-void normalizeEnergyMat(Mat<double>& energyMat)
+Mat<double> normalizeEnergyMat(const Mat<double>& energyMat)
 {
     double maxEnergy = 0.0;
     for (const auto& v : energyMat)
         maxEnergy = std::max(maxEnergy, v);
 
     if (maxEnergy == 0.0)
-        return;
-    energyMat *= (1.0 / maxEnergy);
+        return energyMat;
+    return energyMat * (1.0 / maxEnergy);
 }
 
 Image energyMatToGrayImage(const Mat<double>& energyMat)
@@ -46,7 +77,7 @@ Image energyMatToGrayImage(const Mat<double>& energyMat)
     return img;
 }
 
-std::vector<IPos> getMinimumEnergyLine(const Image& img)
+std::vector<IPos> fetchMinimumEnergyLine(const Image& img)
 {
     assert(img.rows > 2 && img.cols > 2 && img.channel == 3 && !img.isEmpty());
 

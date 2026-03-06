@@ -1,13 +1,8 @@
 #include <cstdio>
 #include <iostream>
 
-#include <base/color_similarity.hpp>
-#include <base/image.hpp>
-
 #include <qimage.h>
 
-#include "image_utility.hpp"
-#include "energy_mat.hpp"
 #include "content_aware_image_crop.hpp"
 
 int main()
@@ -26,14 +21,20 @@ int main()
         printf("Failed to load image.\n");
         exit(1);
     }
-    printf("Origin size: [%d, %d].\n", img.cols, img.rows);
 
-    img = removeMinimumEnergyLines(img, img.cols * 0.5);
+    std::cout << "Input the number of lines to remove:\n";
+    int removeToLines = 0;
+    std::cin >> removeToLines;
 
-    // auto qimg = QImage(
-    //     energyImg.data(), energyImg.cols, energyImg.rows, energyImg.cols, QImage::Format_Grayscale8);
-    const auto qimg = QImage(
-        img.data(), img.cols, img.rows, 3 * img.cols, QImage::Format_RGB888);
+    if (removeToLines >= img.cols)
+    {
+        printf("Illegal lines to remove.\n");
+        exit(2);
+    }
+
+    img = removeMinimumEnergyLines(img, removeToLines);
+
+    const auto qimg = QImage(img.data(), img.cols, img.rows, 3 * img.cols, QImage::Format_RGB888);
     if (qimg.isNull())
     {
         printf("The Qt image is Null.\n");
