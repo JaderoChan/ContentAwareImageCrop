@@ -32,3 +32,14 @@ file(GLOB BASE_CPP_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/base/*.hpp)
 set(
     EXPORT_HEADERS ${BASE_CPP_HEADERS} ${CMAKE_CURRENT_SOURCE_DIR}/content_aware_image_crop.hpp
 )
+
+export(
+    TARGETS ${PROJECT_NAME}
+    FILE ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake
+)
+
+# 构建 Test
+option(BUILD_TEST "Whether build test program." ON)
+if(BUILD_TEST)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test)
+endif()
