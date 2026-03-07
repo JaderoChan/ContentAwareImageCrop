@@ -78,7 +78,7 @@ std::vector<IPos> mapLineToOriginalSize(
 
         // 获取缩放图中该行对应的列坐标，并映射回原图列坐标
         double scaledCol = scaledLine[scaledRow].x;
-        int originalCol = std::clamp(static_cast<int>(std::round(scaledCol * ratioX)), 0, originalSize.x - 1);
+        int originalCol = std::clamp(static_cast<int>(std::round(scaledCol * ratioX)), 0, originalCols - 1);
 
         originalLine.emplace_back(originalCol, row);
     }
