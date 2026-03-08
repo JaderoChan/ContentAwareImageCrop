@@ -2,4 +2,4 @@
 
 #include <base/image.hpp>
 
-Image removeMinimumEnergyLines(const Image& img, int removeToLines);
+Image removeMinimumEnergyLines(const Image& img, int linesToRemove);
