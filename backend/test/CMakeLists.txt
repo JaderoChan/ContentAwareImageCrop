@@ -28,7 +28,7 @@ if(WIN32)
     set(TARGET_SUFFIX ".exe")
     add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${QTDEPLOY} ${CMAKE_BINARY_DIR}/backend/${PROJECT_NAME}${TARGET_SUFFIX}
+        COMMAND ${QTDEPLOY} ${CMAKE_BINARY_DIR}/backend/test/${PROJECT_NAME}${TARGET_SUFFIX}
     )
 elseif(APPLE)
     set(QTDEPLOY macdeployqt)
