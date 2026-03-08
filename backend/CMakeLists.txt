@@ -4,7 +4,12 @@ project(ContentAwareImageCropBackend VERSION 0.0.1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# 收集源文件
+include(GNUInstallDirs)
+
+############
+# 收集源文件 #
+############
+
 file(
     GLOB_RECURSE HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h
@@ -18,27 +23,28 @@ file(
 
 set(PROJECT_SOURCES ${HEADERS} ${SRCS})
 
-# 生成静态库
+############
+# 生成静态库 #
+############
+
 add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCES})
 
-# 配置依赖
+###########
+# 配置依赖 #
+###########
+
 target_include_directories(
-    ${PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${PROJECT_NAME}
+    PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/public>
+    PRIVATE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/private>
 )
 
-# 导出库
-file(GLOB BASE_CPP_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/base/*.hpp)
-set(
-    EXPORT_HEADERS ${BASE_CPP_HEADERS} ${CMAKE_CURRENT_SOURCE_DIR}/content_aware_image_crop.hpp
-)
+##############
+# 构建测试程序 #
+##############
 
-export(
-    TARGETS ${PROJECT_NAME}
-    FILE ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake
-)
-
-# 构建 Test
 option(BUILD_TEST "Whether build test program." ON)
 if(BUILD_TEST)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test)

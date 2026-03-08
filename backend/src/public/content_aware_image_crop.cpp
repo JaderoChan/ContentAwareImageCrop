@@ -1,7 +1,7 @@
 #include "content_aware_image_crop.hpp"
 
-#include "energy_mat.hpp"
-#include "utilities.hpp"
+#include <energy_mat.hpp>
+#include <utilities.hpp>
 
 Image removeMinimumEnergyLines(const Image& img, int removeToLines)
 {

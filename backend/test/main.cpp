@@ -3,7 +3,7 @@
 
 #include <qimage.h>
 
-#include "content_aware_image_crop.hpp"
+#include <content_aware_image_crop.hpp>
 
 int main()
 {
