@@ -22,7 +22,6 @@ set(PROJECT_SOURCES ${HEADERS} ${SRCS})
 add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCES})
 
 # 配置头文件路径
-
 target_include_directories(
     ${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
