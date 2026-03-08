@@ -34,11 +34,8 @@ add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCES})
 ###########
 
 target_include_directories(
-    ${PROJECT_NAME}
-    PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/public>
-    PRIVATE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/private>
+    ${PROJECT_NAME} PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
 )
 
 ##############
