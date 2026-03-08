@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <iostream>
 
+#include <qelapsedtimer.h>
 #include <qimage.h>
 
 #include "content_aware_image_crop.hpp"
@@ -23,16 +24,19 @@ int main()
     }
 
     std::cout << "Input the number of lines to remove:\n";
-    int removeToLines = 0;
-    std::cin >> removeToLines;
+    int linesToRemove = 0;
+    std::cin >> linesToRemove;
 
-    if (removeToLines >= img.cols)
+    if (linesToRemove >= img.cols)
     {
         printf("Illegal lines to remove.\n");
         exit(2);
     }
 
-    img = removeMinimumEnergyLines(img, removeToLines);
+    QElapsedTimer et;
+    et.start();
+    img = removeMinimumEnergyLines(img, linesToRemove);
+    printf("Elapsed: %dms\n", et.elapsed());
 
     const auto qimg = QImage(img.data(), img.cols, img.rows, 3 * img.cols, QImage::Format_RGB888);
     if (qimg.isNull())
