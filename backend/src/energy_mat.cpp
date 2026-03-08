@@ -14,10 +14,10 @@ double computePointEnergy(const Image& img, int row, int col,
     const auto& currPtColor = img.at<RgbColor>(row, col);
 
     std::array<IPos, 4> pts{
-        IPos(col - 1, row), ///< Left
-        IPos(col, row - 1), ///< Top
-        IPos(col + 1, row), ///< Right
-        IPos(col, row + 1), ///< Bottom
+        IPos(col - 1, row), // Left
+        IPos(col, row - 1), // Top
+        IPos(col + 1, row), // Right
+        IPos(col, row + 1), // Bottom
     };
 
     for (const auto& pt : pts)
