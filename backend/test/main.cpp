@@ -36,7 +36,7 @@ int main()
     QElapsedTimer et;
     et.start();
     img = removeMinimumEnergyLines(img, linesToRemove);
-    printf("Elapsed: %dms\n", et.elapsed());
+    printf("Elapsed: %lldms\n", et.elapsed());
 
     const auto qimg = QImage(img.data(), img.cols, img.rows, 3 * img.cols, QImage::Format_RGB888);
     if (qimg.isNull())
