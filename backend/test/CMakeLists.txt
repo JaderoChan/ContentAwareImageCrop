@@ -10,27 +10,15 @@ file(
     ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
 )
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
-
 # 生成
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
+
+find_package(QT NAMES Qt5 Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 # 配置依赖
 target_link_libraries(
     ${PROJECT_NAME} PRIVATE
-    Qt6::Widgets
+    Qt${QT_VERSION_MAJOR}::Widgets
     ContentAwareImageCropBackend
 )
-
-# Temp
-if(WIN32)
-    set(QTDEPLOY windeployqt)
-    set(TARGET_SUFFIX ".exe")
-    add_custom_command(
-        TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${QTDEPLOY} ${CMAKE_BINARY_DIR}/backend/test/${PROJECT_NAME}${TARGET_SUFFIX}
-    )
-elseif(APPLE)
-    set(QTDEPLOY macdeployqt)
-    set(TARGET_SUFFIX "")
-endif()
