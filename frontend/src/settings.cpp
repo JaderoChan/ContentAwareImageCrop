@@ -2,12 +2,10 @@
 
 #include <qsettings.h>
 
-#include <config.h>
-
 Settings loadSettings()
 {
     Settings settings;
-    QSettings qsettings(QSettings::NativeFormat, QSettings::UserScope, APP_ORGANIZATION, APP_TITLE);
+    QSettings qsettings;
 
     settings.language = qsettings.value("Language", getCurrentSystemLang()).value<Language>();
 
@@ -16,7 +14,7 @@ Settings loadSettings()
 
 void saveSettings(const Settings& settings)
 {
-    QSettings qsettings(QSettings::NativeFormat, QSettings::UserScope, APP_ORGANIZATION, APP_TITLE);
+    QSettings qsettings;
 
     qsettings.setValue("Language", settings.language);
 }
