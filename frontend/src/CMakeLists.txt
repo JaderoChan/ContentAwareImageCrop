@@ -12,21 +12,21 @@ configure_file(
 )
 
 # 头文件（可用于在Visual Studio IDE的项目文件树中显示头文件）
-file(GLOB_RECURSE HEADER ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
+file(GLOB_RECURSE HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
 # 源文件
-file(GLOB_RECURSE SRC ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+file(GLOB_RECURSE SRCS ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 # UI文件
-file(GLOB_RECURSE UI ${CMAKE_CURRENT_SOURCE_DIR}/*.ui)
+file(GLOB_RECURSE UIS ${CMAKE_CURRENT_SOURCE_DIR}/*.ui)
 # QRC文件
 set(QRC ${RESOURCES_DIR}/app.qrc)
-set(PROJECT_SOURCE ${HEADER} ${SRC} ${UI} ${QRC})
+set(PROJECT_SOURCES ${HEADERS} ${SRCS} ${UIS} ${QRC})
 
 ###########
 # 构建程序 #
 ###########
 
 qt_standard_project_setup()
-qt_add_executable(${PROJECT_NAME} ${PROJECT_SOURCE})
+qt_add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 
 ###########
 # 配置依赖 #
