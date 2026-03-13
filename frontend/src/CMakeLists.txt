@@ -88,28 +88,6 @@ elseif(APPLE)
     # Apple
     set(APP_ICON ${APP_ICON_DIR}/app.icns)
 
-    # Info Plist Strings
-    set(
-        INFO_PLIST_STRINGS_NAMES
-        en.lproj
-        zh_CN.lproj
-    )
-    foreach(INFO_PLIST_STRINGS_NAME IN LISTS INFO_PLIST_STRINGS_NAMES)
-        configure_file(
-            ${CMAKE_TEMPLATES_DIR}/InfoPlistStrings/${INFO_PLIST_STRINGS_NAME}/InfoPlist.strings.in
-            ${CMAKE_CURRENT_BINARY_DIR}/${INFO_PLIST_STRINGS_NAME}/InfoPlist.strings
-            @ONLY
-        )
-    endforeach()
-    foreach(INFO_PLIST_STRINGS_NAME IN LISTS INFO_PLIST_STRINGS_NAMES)
-        set(INFO_PLIST_STRINGS_FILE ${CMAKE_CURRENT_BINARY_DIR}/${INFO_PLIST_STRINGS_NAME}/InfoPlist.strings)
-        set_source_files_properties(
-            ${INFO_PLIST_STRINGS_FILE} PROPERTIES
-            MACOSX_PACKAGE_LOCATION "Resources/${INFO_PLIST_STRINGS_NAME}"
-        )
-        target_sources(${PROJECT_NAME} PRIVATE ${INFO_PLIST_STRINGS_FILE})
-    endforeach()
-
     # Info Plist
     set(MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_BINARY_DIR}/Info.plist)
     configure_file(

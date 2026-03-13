@@ -32,12 +32,5 @@
 
     <key>CFBundleCopyRight</key>
     <string>@APP_COPYRIGHT_TEXT</string>
-
-    <!-- 本地化支持 -->
-    <key>CFBundleLocalizations</key>
-    <array>
-        <string>en</string>
-        <string>zh_CN</string>
-    </array>
 </dict>
 </plist>
