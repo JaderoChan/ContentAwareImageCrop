@@ -1,6 +1,6 @@
 APP_TITLE="$1"
 ICONS_FILE="$2"
-BUILD_DIR="$3"
+TARGET_DIR="$3"
 
 create-dmg \
   --volname "$APP_TITLE" \
@@ -10,5 +10,5 @@ create-dmg \
   --volicon "${ICONS_FILE}" \
   --icon "${APP_TITLE}.app" 125 150 \
   --app-drop-link 475 150 \
-  "${BUILD_DIR}/${APP_TITLE}.dmg" \
-  "${BUILD_DIR}/${APP_TITLE}.app"
+  "${TARGET_DIR}/${APP_TITLE}.dmg" \
+  "${TARGET_DIR}/${APP_TITLE}.app"

@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.17)
-
 #############
 # 收集源文件 #
 #############
@@ -12,11 +10,11 @@ configure_file(
 )
 
 # 头文件（可用于在Visual Studio IDE的项目文件树中显示头文件）
-file(GLOB_RECURSE HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
+file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
 # 源文件
-file(GLOB_RECURSE SRCS ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+file(GLOB_RECURSE SRCS CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 # UI文件
-file(GLOB_RECURSE UIS ${CMAKE_CURRENT_SOURCE_DIR}/*.ui)
+file(GLOB_RECURSE UIS CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/*.ui)
 # QRC文件
 set(QRC ${RESOURCES_DIR}/app.qrc)
 set(PROJECT_SOURCES ${HEADERS} ${SRCS} ${UIS} ${QRC})
@@ -56,6 +54,11 @@ set_target_properties(
     AUTOUIC ON
     AUTORCC ON
 )
+
+# 如果为 MSVC 编译器，显式指定编码，防止乱码情况。
+if(MSVC)
+    target_compile_options(${PROJECT_NAME} PRIVATE /utf-8)
+endif()
 
 # 指定为GUI应用程序
 if(WIN32)
@@ -110,7 +113,7 @@ elseif(APPLE)
     )
 
     # 语言文件
-    file(GLOB LANG_FILES ${LANGUAGES_DIR}/*)
+    file(GLOB LANG_FILES CONFIGURE_DEPENDS ${LANGUAGES_DIR}/*)
     set_source_files_properties(
         ${LANG_FILES} PROPERTIES
         MACOSX_PACKAGE_LOCATION "Resources/languages"
@@ -124,34 +127,36 @@ endif()
 # 生成后额外命令 #
 #################
 
-# 复制语言文件至输出目录
+# 复制语言文件至输出目录。
 if(NOT APPLE)
     add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${LANGUAGES_DIR} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/languages
+        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+        ${LANGUAGES_DIR} $<TARGET_FILE_DIR:${PROJECT_NAME}>/languages
     )
 endif()
 
-# Qt部署（需要保证*deployqt可见）
-if(WIN32)
-    set(DEPLOYQT windeployqt)
-    set(OUTPUT_SUFFIX "exe")
-elseif(APPLE)
-    set(DEPLOYQT macdeployqt)
-    set(OUTPUT_SUFFIX "app")
-else()
-    # TODO
+# Qt 部署（需要保证 *deployqt 可见）
+option(DEPLOYQT_AFTER_BUILD "Execute *deployqt program to install Qt dependencies after build." OFF)
+if(DEPLOYQT_AFTER_BUILD)
+    if(WIN32)
+        set(DEPLOYQT windeployqt)
+    elseif(APPLE)
+        set(DEPLOYQT macdeployqt)
+    else()
+        # TODO
+    endif()
+
+    add_custom_command(
+        TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${DEPLOYQT}
+        $<$<CONFIG:Debug>:--debug>$<$<NOT:$<CONFIG:Debug>>:--release>
+        $<TARGET_FILE:${PROJECT_NAME}>
+        $<$<PLATFORM_ID:Darwin>:-codesign=->
+    )
 endif()
 
-add_custom_command(
-    TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${DEPLOYQT}
-    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${PROJECT_NAME}.${OUTPUT_SUFFIX}
-    $<$<PLATFORM_ID:Darwin>:-codesign=->
-)
-
-# MacOS DMG打包
+# MacOS DMG 打包
 option(CREATE_DMG "Create DMG for MacOS, create-dmg is required." OFF)
 if(APPLE AND CREATE_DMG)
     add_custom_command(
@@ -159,6 +164,6 @@ if(APPLE AND CREATE_DMG)
         COMMAND ${SCRIPTS_DIR}/create_dmg.sh
         ${PROJECT_NAME}
         ${APP_ICON}
-        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>
     )
 endif()
