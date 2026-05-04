@@ -3,7 +3,6 @@
 #include <easy_translate.hpp>
 
 #include <config.h>
-#include <trwidgets/trwidget.h>
 
 #include "logo_icon.h"
 #include "settings.h"
@@ -24,8 +23,7 @@ int main(int argc, char* argv[])
         setLanguage(settings.language);
     }
 
-    TrWidget wgt;
-    wgt.show();
+    // TODO
 
     int ret = a.exec();
 
