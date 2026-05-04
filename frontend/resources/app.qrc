@@ -1,11 +1,20 @@
 <RCC>
     <qresource prefix="/">
-        <file>icons/app_16.png</file>
-        <file>icons/app_256.png</file>
-        <file>icons/app_32.png</file>
-        <file>icons/app_128.png</file>
-        <file>icons/app_64.png</file>
-        <file>icons/app_512.png</file>
-        <file>icons/app_1024.png</file>
+        <file>icons/app/16.png</file>
+        <file>icons/app/32.png</file>
+        <file>icons/app/64.png</file>
+        <file>icons/app/256.png</file>
+        <file>icons/app/128.png</file>
+        <file>icons/app/1024.png</file>
+        <file>icons/app/512.png</file>
+        <file>icons/horizontal_flip.png</file>
+        <file>icons/redo.png</file>
+        <file>icons/undo.png</file>
+        <file>icons/anticlockwise.png</file>
+        <file>icons/clockwise.png</file>
+        <file>icons/view_split.png</file>
+        <file>icons/vertical_flip.png</file>
+        <file>icons/right_arrow.png</file>
+        <file>icons/reset.png</file>
     </qresource>
 </RCC>
