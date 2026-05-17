@@ -16,6 +16,10 @@ file(
 # 生成静态库
 add_library(${PROJECT_NAME} STATIC ${SRCS})
 
+if(MSVC)
+    target_compile_options(${PROJECT_NAME} PRIVATE /utf-8)
+endif()
+
 # 配置头文件路径
 target_include_directories(
     ${PROJECT_NAME} PUBLIC
