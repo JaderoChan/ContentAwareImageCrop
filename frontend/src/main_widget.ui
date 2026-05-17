@@ -71,7 +71,7 @@
       <item>
        <widget class="Line" name="line">
         <property name="orientation">
-         <enum>Qt::Orientation::Vertical</enum>
+         <enum>Qt::Vertical</enum>
         </property>
        </widget>
       </item>
@@ -117,7 +117,7 @@
       <item>
        <widget class="Line" name="line_2">
         <property name="orientation">
-         <enum>Qt::Orientation::Vertical</enum>
+         <enum>Qt::Vertical</enum>
         </property>
        </widget>
       </item>
@@ -131,7 +131,7 @@
       <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
-         <enum>Qt::Orientation::Horizontal</enum>
+         <enum>Qt::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -177,24 +177,27 @@
          </size>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_4">
+         <property name="spacing">
+          <number>9</number>
+         </property>
          <property name="leftMargin">
-          <number>6</number>
+          <number>3</number>
          </property>
          <property name="rightMargin">
-          <number>6</number>
+          <number>3</number>
          </property>
          <item>
           <widget class="QPushButton" name="clockwiseButton">
            <property name="minimumSize">
             <size>
-             <width>36</width>
-             <height>36</height>
+             <width>42</width>
+             <height>42</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>36</width>
-             <height>36</height>
+             <width>42</width>
+             <height>42</height>
             </size>
            </property>
            <property name="text">
@@ -206,8 +209,8 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>36</width>
-             <height>36</height>
+             <width>42</width>
+             <height>42</height>
             </size>
            </property>
            <property name="flat">
@@ -219,14 +222,14 @@
           <widget class="QPushButton" name="anticlockwiseButton">
            <property name="minimumSize">
             <size>
-             <width>36</width>
-             <height>36</height>
+             <width>42</width>
+             <height>42</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>36</width>
-             <height>36</height>
+             <width>42</width>
+             <height>42</height>
             </size>
            </property>
            <property name="text">
@@ -238,8 +241,8 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>36</width>
-             <height>36</height>
+             <width>42</width>
+             <height>42</height>
             </size>
            </property>
            <property name="flat">
@@ -251,14 +254,14 @@
           <widget class="QPushButton" name="horFlipButton">
            <property name="minimumSize">
             <size>
-             <width>36</width>
-             <height>36</height>
+             <width>42</width>
+             <height>42</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>36</width>
-             <height>36</height>
+             <width>42</width>
+             <height>42</height>
             </size>
            </property>
            <property name="text">
@@ -270,8 +273,8 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>36</width>
-             <height>36</height>
+             <width>42</width>
+             <height>42</height>
             </size>
            </property>
            <property name="flat">
@@ -283,14 +286,14 @@
           <widget class="QPushButton" name="verFlipButton">
            <property name="minimumSize">
             <size>
-             <width>36</width>
-             <height>36</height>
+             <width>42</width>
+             <height>42</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>36</width>
-             <height>36</height>
+             <width>42</width>
+             <height>42</height>
             </size>
            </property>
            <property name="text">
@@ -302,8 +305,8 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>36</width>
-             <height>36</height>
+             <width>42</width>
+             <height>42</height>
             </size>
            </property>
            <property name="flat">
@@ -314,7 +317,7 @@
          <item>
           <spacer name="verticalSpacer">
            <property name="orientation">
-            <enum>Qt::Orientation::Vertical</enum>
+            <enum>Qt::Vertical</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -455,7 +458,7 @@
                <item>
                 <widget class="QSlider" name="rangeSlider">
                  <property name="orientation">
-                  <enum>Qt::Orientation::Horizontal</enum>
+                  <enum>Qt::Horizontal</enum>
                  </property>
                 </widget>
                </item>
@@ -495,7 +498,7 @@
                      <string>0</string>
                     </property>
                     <property name="alignment">
-                     <set>Qt::AlignmentFlag::AlignCenter</set>
+                     <set>Qt::AlignCenter</set>
                     </property>
                    </widget>
                   </item>
@@ -505,7 +508,7 @@
                      <string>0</string>
                     </property>
                     <property name="alignment">
-                     <set>Qt::AlignmentFlag::AlignCenter</set>
+                     <set>Qt::AlignCenter</set>
                     </property>
                    </widget>
                   </item>
@@ -574,7 +577,7 @@
                <item>
                 <widget class="QSlider" name="valueSlider">
                  <property name="orientation">
-                  <enum>Qt::Orientation::Horizontal</enum>
+                  <enum>Qt::Horizontal</enum>
                  </property>
                 </widget>
                </item>
@@ -614,7 +617,7 @@
                      <string>0</string>
                     </property>
                     <property name="alignment">
-                     <set>Qt::AlignmentFlag::AlignCenter</set>
+                     <set>Qt::AlignCenter</set>
                     </property>
                    </widget>
                   </item>
@@ -747,7 +750,7 @@
                <item>
                 <spacer name="horizontalSpacer_2">
                  <property name="orientation">
-                  <enum>Qt::Orientation::Horizontal</enum>
+                  <enum>Qt::Horizontal</enum>
                  </property>
                  <property name="sizeHint" stdset="0">
                   <size>
