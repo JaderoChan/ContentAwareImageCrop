@@ -11,8 +11,8 @@
 
 // QIntValidator 对超出范围但可通过删字符变合法的值返回 Intermediate，导致仍可输入。
 // StrictIntValidator:
-//   - validate: 对已明确越界的整数直接返回 Invalid
-//   - fixup:    用户清空输入框失去焦点时，恢复为 fallback 指针所指的成员变量值
+//    - validate: 对已明确越界的整数直接返回 Invalid
+//    - fixup:    用户清空输入框失去焦点时，恢复为 fallback 指针所指的成员变量值
 class StrictIntValidator : public QIntValidator
 {
 public:
