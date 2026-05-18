@@ -62,9 +62,10 @@ endif()
 
 # 指定为GUI应用程序
 if(WIN32)
+    option(KEEP_TERMINAL "Keep terminal window" OFF)
     set_target_properties(
         ${PROJECT_NAME} PROPERTIES
-        WIN32_EXECUTABLE ON
+        WIN32_EXECUTABLE $<NOT:$<BOOL:${KEEP_TERMINAL}>>
     )
 endif()
 
