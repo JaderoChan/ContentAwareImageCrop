@@ -78,4 +78,6 @@ private:
     size_t cropValue_ = 0;
 
     bool isCropping_ = false;
+
+    QString lastOpenDirectory_;
 };

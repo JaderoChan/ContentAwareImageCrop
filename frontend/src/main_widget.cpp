@@ -1,7 +1,9 @@
 #include "main_widget.h"
 
 #include <qfileinfo.h>
+#include <qfiledialog.h>
 #include <qlist.h>
+#include <qmessagebox.h>
 #include <qmimedata.h>
 #include <qtransform.h>
 #include <qurl.h>
@@ -95,7 +97,8 @@ MainWidget::MainWidget(QWidget* parent)
     connect(ui.undoButton, &QPushButton::clicked, this, &MainWidget::undo);
     connect(ui.redoButton, &QPushButton::clicked, this, &MainWidget::redo);
 
-    // connect(ui.exportButton, &QPushButton::clicked, this, [=]() { exportImage(); });
+    // TODO: Hard coding is not allowed! Show message box when error occured.
+    connect(ui.exportButton, &QPushButton::clicked, this, [=]() { exportImage(true); });
 
     updateAllUi();
     updateText();
@@ -110,12 +113,52 @@ MainWidget::MainWidget(const QString& filename, QWidget* parent)
 
 bool MainWidget::importImage(bool showMessageBoxOnError)
 {
-    return false;
+    QString filename = QFileDialog::getOpenFileName(
+        this, EASYTR("Open Image"), lastOpenDirectory_.isEmpty() ? QDir::currentPath() : lastOpenDirectory_,
+        QString("%1 (*.png *jpg *.jpeg *.bmp);;%2 (*)").arg(EASYTR("Image Files")).arg(EASYTR("All Files")));
+
+    if (filename.isEmpty())
+    {
+        if (showMessageBoxOnError)
+            QMessageBox::warning(this, EASYTR("Warning"), EASYTR("No files are open."), EASYTR("Ok"));
+        return false;
+    }
+
+    lastOpenDirectory_ = QFileInfo(filename).dir().path();
+
+    if (!importImage(filename))
+    {
+        if (showMessageBoxOnError)
+            QMessageBox::warning(this, EASYTR("Warning"), EASYTR("Failed to open image file."), EASYTR("Ok"));
+        return false;
+    }
+
+    return true;
 }
 
 bool MainWidget::exportImage(bool showMessageBoxOnError)
 {
-    return false;
+    QString filename = QFileDialog::getSaveFileName(
+        this, EASYTR("Save Image"), lastOpenDirectory_.isEmpty() ? QDir::currentPath() : lastOpenDirectory_,
+        QString("%1 (*.png *jpg *.jpeg *.bmp);;%2 (*)").arg(EASYTR("Image Files")).arg(EASYTR("All Files")));
+
+    if (filename.isEmpty())
+    {
+        if (showMessageBoxOnError)
+            QMessageBox::warning(this, EASYTR("Warning"), EASYTR("No files are save."), EASYTR("Ok"));
+        return false;
+    }
+
+    lastOpenDirectory_ = QFileInfo(filename).dir().path();
+
+    if (!exportImage(filename))
+    {
+        if (showMessageBoxOnError)
+            QMessageBox::warning(this, EASYTR("Warning"), EASYTR("Failed to save the image file."), EASYTR("Ok"));
+        return false;
+    }
+
+    return true;
 }
 
 void MainWidget::startCrop(bool highlightLowEnergyLine)
