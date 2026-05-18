@@ -35,6 +35,9 @@ protected:
     void resizeEvent(QResizeEvent* event) override;
     bool eventFilter(QObject* obj, QEvent* event) override;
 
+    void onResetRangeButtonClicked();
+    void onResetValueButtonClicked();
+
 private:
     using StepRecords = LinkedList<QImage>;
 

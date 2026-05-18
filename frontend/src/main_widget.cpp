@@ -84,6 +84,19 @@ MainWidget::MainWidget(QWidget* parent)
     ui.graphicsView->viewport()->setAcceptDrops(true);
     ui.graphicsView->viewport()->installEventFilter(this);
 
+    connect(ui.clockwiseButton, &QPushButton::clicked, this, &MainWidget::clockwiseImage);
+    connect(ui.anticlockwiseButton, &QPushButton::clicked, this, &MainWidget::anticlockwiseImage);
+    connect(ui.horFlipButton, &QPushButton::clicked, this, &MainWidget::horizontalFlipImage);
+    connect(ui.verFlipButton, &QPushButton::clicked, this, &MainWidget::verticalFlipImage);
+
+    connect(ui.resetRangeButton, &QPushButton::clicked, this, &MainWidget::onResetRangeButtonClicked);
+    connect(ui.resetValueButton, &QPushButton::clicked, this, &MainWidget::onResetValueButtonClicked);
+
+    connect(ui.undoButton, &QPushButton::clicked, this, &MainWidget::undo);
+    connect(ui.redoButton, &QPushButton::clicked, this, &MainWidget::redo);
+
+    // connect(ui.exportButton, &QPushButton::clicked, this, [=]() { exportImage(); });
+
     updateAllUi();
     updateText();
 }
@@ -198,6 +211,19 @@ bool MainWidget::eventFilter(QObject* obj, QEvent* event)
     }
 
     return TrWidget::eventFilter(obj, event);
+}
+
+void MainWidget::onResetRangeButtonClicked()
+{
+    cropRangeLow_ = 0;
+    cropRangeHigh_ = currentImageSize_.width();
+    updateRangeSliderUi();
+}
+
+void MainWidget::onResetValueButtonClicked()
+{
+    cropValue_ = 0;
+    updateSliderUi();
 }
 
 void MainWidget::resizeEvent(QResizeEvent* event)
