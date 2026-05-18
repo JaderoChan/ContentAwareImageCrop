@@ -238,16 +238,16 @@ void QRangeSlider::paintEvent(QPaintEvent* e)
     painter.setRenderHint(QPainter::RenderHint::Antialiasing);
 
     // Draw background
-    painter.setPen(QPen(Qt::GlobalColor::darkGray, 0.8));
-    painter.setBrush(QBrush(QColor(Qt::GlobalColor::lightGray)));
+    painter.setPen(QPen(QColor(35, 35, 35), 0.8));
+    painter.setBrush(QBrush(QColor(53, 53, 53)));
     painter.drawRoundedRect(getBackgroundRect(), 2, 2);
 
     // Draw range
-    painter.setBrush(QBrush(QColor(0x1E, 0x90, 0xFF)));
+    painter.setBrush(isEnabled() ? QBrush(QColor(42, 130, 218)) : QBrush(QColor(53, 53, 53)));
     painter.drawRect(getRangeRect());
 
     // Draw lower handle
-    painter.setBrush(QBrush(QColor(Qt::GlobalColor::white)));
+    painter.setBrush(isEnabled() ? QBrush(QColor(Qt::GlobalColor::white)) : QBrush(QColor(100, 100, 100)));
     painter.drawRoundedRect(getLowHandleRect(), 2, 2);
 
     // Draw higher handle
