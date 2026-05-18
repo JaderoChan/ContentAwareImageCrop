@@ -215,7 +215,15 @@ bool MainWidget::redo()
 }
 
 void MainWidget::updateText()
-{}
+{
+    ui.clockwiseButton->setToolTip(EASYTR("Rotate 90 degrees clockwise"));
+    ui.anticlockwiseButton->setToolTip(EASYTR("Rotate 90 degrees anticlockwise"));
+    ui.horFlipButton->setToolTip(EASYTR("Horizontal flip"));
+    ui.verFlipButton->setToolTip(EASYTR("Vertical flip"));
+    ui.undoButton->setToolTip(EASYTR("Undo"));
+    ui.redoButton->setToolTip(EASYTR("Redo"));
+    ui.differentButton->setToolTip(EASYTR("Compared with the original image"));
+}
 
 bool MainWidget::eventFilter(QObject* obj, QEvent* event)
 {
