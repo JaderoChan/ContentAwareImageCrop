@@ -22,3 +22,5 @@
 #else
     #define APP_RESOURCES_DIRPATH    APP_DIRPATH
 #endif // Q_OS_MAC
+
+#define MAX_RECORD_STEP         @MAX_RECORD_STEP@
