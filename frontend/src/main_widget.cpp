@@ -11,10 +11,6 @@
 
 #include <config.h>
 
-// QIntValidator 对超出范围但可通过删字符变合法的值返回 Intermediate，导致仍可输入。
-// StrictIntValidator:
-//    - validate: 对已明确越界的整数直接返回 Invalid
-//    - fixup:    用户清空输入框失去焦点时，恢复为 fallback 指针所指的成员变量值
 class StrictIntValidator : public QIntValidator
 {
 public:
@@ -78,6 +74,7 @@ MainWidget::MainWidget(QWidget* parent)
 {
     ui.setupUi(this);
 
+    // Init graphics view
     scene_ = new QGraphicsScene(this);
     pixmapItem_ = scene_->addPixmap(QPixmap());
     ui.graphicsView->setScene(scene_);
@@ -86,6 +83,7 @@ MainWidget::MainWidget(QWidget* parent)
     ui.graphicsView->viewport()->setAcceptDrops(true);
     ui.graphicsView->viewport()->installEventFilter(this);
 
+    // Connects
     connect(ui.clockwiseButton, &QPushButton::clicked, this, &MainWidget::clockwiseImage);
     connect(ui.anticlockwiseButton, &QPushButton::clicked, this, &MainWidget::anticlockwiseImage);
     connect(ui.horFlipButton, &QPushButton::clicked, this, &MainWidget::horizontalFlipImage);
@@ -100,6 +98,7 @@ MainWidget::MainWidget(QWidget* parent)
     // TODO: Hard coding is not allowed! Show message box when error occured.
     connect(ui.exportButton, &QPushButton::clicked, this, [=]() { exportImage(true); });
 
+    // Update UI
     updateAllUi();
     updateText();
 }
@@ -162,26 +161,28 @@ bool MainWidget::exportImage(bool showMessageBoxOnError)
 }
 
 void MainWidget::startCrop(bool highlightLowEnergyLine)
-{}
+{
+    // TODO
+}
 
 void MainWidget::clockwiseImage()
 {
-    setToNewImage(currentImage_.transformed(QTransform().rotate(90)));
+    addNewImage(currentImage_.transformed(QTransform().rotate(90)));
 }
 
 void MainWidget::anticlockwiseImage()
 {
-    setToNewImage(currentImage_.transformed(QTransform().rotate(-90)));
+    addNewImage(currentImage_.transformed(QTransform().rotate(-90)));
 }
 
 void MainWidget::horizontalFlipImage()
 {
-    setToNewImage(currentImage_.mirrored(true, false));
+    addNewImage(currentImage_.mirrored(true, false));
 }
 
 void MainWidget::verticalFlipImage()
 {
-    setToNewImage(currentImage_.mirrored(false, true));
+    addNewImage(currentImage_.mirrored(false, true));
 }
 
 bool MainWidget::undo()
@@ -405,7 +406,7 @@ void MainWidget::updateCurrentImageVariables(const QImage& image)
     cropValue_ = 0;
 }
 
-void MainWidget::setToNewImage(const QImage& image)
+void MainWidget::addNewImage(const QImage& image)
 {
     records_.removeAllNext();
     records_.insertNext(image);

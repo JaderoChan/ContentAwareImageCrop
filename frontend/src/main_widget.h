@@ -20,6 +20,7 @@ public:
     bool importImage(bool showMessageBoxOnError);
     bool exportImage(bool showMessageBoxOnError);
 
+    // 开始内容感知图像裁切。
     void startCrop(bool highlightLowEnergyLine);
 
     void clockwiseImage();
@@ -41,7 +42,9 @@ protected:
 private:
     using StepRecords = LinkedList<QImage>;
 
+    // 更新图像画面的显示。
     void updateDisplayedImage(const QImage& image);
+    // 缩放图像（小于视图窗口尺寸的图像将按原大小居中显示，大于视图窗口尺寸的图像将等比缩放至合适大小）。
     void updateViewTransform();
 
     void updateFileInfoUi();
@@ -49,11 +52,15 @@ private:
     void updateRangeSliderUi();
     void updateSliderUi();
     void updateUndoRedoUi();
+    // 包含了 updateUndoRedoUi 函数。
     void updateProgressBarAndButtonUi();
+    // 上面所有 UI 更新函数的集合。
     void updateAllUi();
 
+    // 仅更新与 Current Image （当前 Step 图像） 相关的变量值。
     void updateCurrentImageVariables(const QImage& image);
-    void setToNewImage(const QImage& image);
+    // 将图像计入 Step Record，更新当前图像相关变量，更新图像显示和 UI 显示。
+    void addNewImage(const QImage& image);
 
     bool importImage(const QString& filename);
     bool exportImage(const QString& filename);
@@ -65,16 +72,22 @@ private:
 
     QImage originImage_;
     QImage currentImage_;
+    // 步骤记录，用于操作撤销与重做。
     StepRecords records_;
 
     QString filename_;
     size_t filesize_ = 0;
+    // 原始图像尺寸
     QSize originImageSize_ = {0, 0};
+    // 当前 Step 图像尺寸
     QSize currentImageSize_ = {0, 0};
+    // 预估结果图像尺寸（当前 Step 图像裁切后的大小）
     QSize resultImageSize_ = {0, 0};
 
+    // 裁切范围
     size_t cropRangeLow_ = 0;
     size_t cropRangeHigh_ = 0;
+    // 裁切值
     size_t cropValue_ = 0;
 
     bool isCropping_ = false;
