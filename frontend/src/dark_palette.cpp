@@ -6,7 +6,7 @@
 #include <qproxystyle.h>
 #include <qstylefactory.h>
 
-// 重写禁用态图标生成：将像素 RGB 降至原来的 35%，保留 alpha。
+// 重写禁用态图标生成：将像素 RGB 降至原来的 50%，保留 alpha。
 // 默认算法对白色图标效果不明显，此实现使白色图标在禁用时变为明显的深灰色。
 class DarkStyle : public QProxyStyle
 {
@@ -29,9 +29,9 @@ public:
                 {
                     const QRgb px = line[x];
                     line[x] = qRgba(
-                        qRed(px)   * 35 / 100,
-                        qGreen(px) * 35 / 100,
-                        qBlue(px)  * 35 / 100,
+                        qRed(px)   * 50 / 100,
+                        qGreen(px) * 50 / 100,
+                        qBlue(px)  * 50 / 100,
                         qAlpha(px)
                     );
                 }
