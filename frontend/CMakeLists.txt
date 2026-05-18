@@ -42,7 +42,7 @@ set(APP_AUTHOR "頔珞 JaderoChan")
 set(APP_CONTACT_EMAIL "c_dl_cn@outlook.com")
 set(APP_COPYRIGHT_TEXT "Copyright (c) 2026 JaderoChan")
 
-set(MAX_RECORD_STEP 10)
+set(DEFAULT_MAX_RECORD_STEP 10)
 
 ###############
 # 定义常用路径 #
