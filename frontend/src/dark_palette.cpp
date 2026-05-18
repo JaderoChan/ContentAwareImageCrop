@@ -46,7 +46,7 @@ public:
 
 void setDarkPalette()
 {
-    qApp->setStyle(new DarkStyle);
+    qApp->setStyle(new DarkStyle());
 
     QPalette darkPalette;
 
