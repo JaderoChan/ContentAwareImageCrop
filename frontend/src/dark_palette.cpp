@@ -22,6 +22,7 @@ public:
         if (iconMode == QIcon::Disabled)
         {
             QImage img = pixmap.toImage().convertToFormat(QImage::Format_ARGB32);
+
             for (int y = 0; y < img.height(); ++y)
             {
                 auto* line = reinterpret_cast<QRgb*>(img.scanLine(y));
