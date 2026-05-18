@@ -3,9 +3,10 @@
 #include <easy_translate.hpp>
 
 #include <config.h>
-
 #include "logo_icon.h"
 #include "settings.h"
+#include "dark_palette.h"
+#include "main_widget.h"
 
 int main(int argc, char* argv[])
 {
@@ -23,7 +24,11 @@ int main(int argc, char* argv[])
         setLanguage(settings.language);
     }
 
-    // TODO
+    // Set to dark palette.
+    setDarkPalette();
+
+    MainWidget wgt;
+    wgt.show();
 
     int ret = a.exec();
 
