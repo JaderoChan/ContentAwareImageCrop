@@ -335,11 +335,11 @@ void MainWidget::updateRangeSliderUi()
     ui.rangeHighLineEdit->setText(QString::number(cropRangeHigh_));
 
     auto* lowValidator = new StrictIntValidator(0, currentImageSize_.width(), &cropRangeLow_, this);
-    lowValidator->setDynamicTop(&cropRangeHigh_);      // low 不得超过 high
+    lowValidator->setDynamicTop(&cropRangeHigh_);
     ui.rangeLowLineEdit->setValidator(lowValidator);
 
     auto* highValidator = new StrictIntValidator(0, currentImageSize_.width(), &cropRangeHigh_, this);
-    highValidator->setDynamicBottom(&cropRangeLow_);   // high 不得低于 low
+    highValidator->setDynamicBottom(&cropRangeLow_);
     ui.rangeHighLineEdit->setValidator(highValidator);
 
     ui.rangeLowLineEdit->setEnabled(currentImageSize_.width() != 0);
