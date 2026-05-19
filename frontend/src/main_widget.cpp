@@ -7,67 +7,9 @@
 #include <qmimedata.h>
 #include <qtransform.h>
 #include <qurl.h>
-#include <qvalidator.h>
 
 #include <config.h>
-
-class StrictIntValidator : public QIntValidator
-{
-public:
-    StrictIntValidator(int absMin, int absMax, const size_t* fallback, QObject* parent)
-        : QIntValidator(absMin, absMax, parent), fallback_(fallback) {}
-
-    // low 字段设置此项：运行时上界不得超过对方字段的值
-    void setDynamicTop(const size_t* ptr)
-    { dynamicTop_ = ptr; }
-
-    // high 字段设置此项：运行时下界不得低于对方字段的值
-    void setDynamicBottom(const size_t* ptr)
-    { dynamicBottom_ = ptr; }
-
-    State validate(QString& input, int& pos) const override
-    {
-        State state = QIntValidator::validate(input, pos);
-
-        if (state == Intermediate)
-        {
-            bool ok;
-            const int val = input.toInt(&ok);
-            if (ok && (val < bottom() || val > top()))
-                return Invalid;
-        }
-        else if (state == Acceptable)
-        {
-            bool ok;
-            const int val = input.toInt(&ok);
-            if (ok)
-            {
-                if (dynamicBottom_ && val < static_cast<int>(*dynamicBottom_))
-                    return Intermediate;
-                if (dynamicTop_   && val > static_cast<int>(*dynamicTop_))
-                    return Intermediate;
-            }
-        }
-
-        return state;
-    }
-
-    void fixup(QString& input) const override
-    {
-        if (!fallback_)
-            return;
-
-        int val = static_cast<int>(*fallback_);
-        if (dynamicBottom_) val = qMax(val, static_cast<int>(*dynamicBottom_));
-        if (dynamicTop_)    val = qMin(val, static_cast<int>(*dynamicTop_));
-        input = QString::number(val);
-    }
-
-private:
-    const size_t* fallback_      = nullptr;
-    const size_t* dynamicTop_    = nullptr;
-    const size_t* dynamicBottom_ = nullptr;
-};
+#include "strict_int_validator.h"
 
 MainWidget::MainWidget(QWidget* parent)
     : TrWidget(parent)
