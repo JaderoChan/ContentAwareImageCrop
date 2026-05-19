@@ -161,7 +161,7 @@ void QRangeSlider::setHighValue(unsigned int highValue)
             highValue_ = minimum_ + 1;
 
         if (highValue_ <= lowValue_)
-            setLowValue(lowValue_ - 1);
+            setLowValue(highValue_ - 1);
 
         update();
         emit highValueChanged(highValue_);
@@ -284,18 +284,19 @@ QRectF QRangeSlider::getRangeRect() const
 
 QRectF QRangeSlider::getLowHandleRect() const
 {
-    return QRectF(
-        PADDING + ((width() - 2 * PADDING) * (lowValue_ - minimum_) / (maximum_ - minimum_)),
-        (height() - HANDLE_SIZE) / 2,
-        HANDLE_SIZE,
-        HANDLE_SIZE);
+    double trackWidth = width() - 2.0 * PADDING;
+    double lowX = PADDING + trackWidth * (lowValue_ - minimum_) / (maximum_ - minimum_);
+    double highX = PADDING + trackWidth * (highValue_ - minimum_) / (maximum_ - minimum_);
+    double x = qMin(lowX, highX - HANDLE_SIZE);
+    return QRectF(x, (height() - HANDLE_SIZE) / 2, HANDLE_SIZE, HANDLE_SIZE);
 }
 
 QRectF QRangeSlider::getHighHandleRect() const
 {
-    return QRectF(
-        PADDING + ((width() - 2 * PADDING) * (highValue_ - minimum_) / (maximum_ - minimum_)) - HANDLE_SIZE,
-        (height() - HANDLE_SIZE) / 2,
-        HANDLE_SIZE,
-        HANDLE_SIZE);
+    double trackWidth = width() - 2.0 * PADDING;
+    double lowX = PADDING + trackWidth * (lowValue_ - minimum_) / (maximum_ - minimum_);
+    double highX = PADDING + trackWidth * (highValue_ - minimum_) / (maximum_ - minimum_);
+    double lowHandleX = qMin(lowX, highX - HANDLE_SIZE);
+    double x = qMax(highX - HANDLE_SIZE, lowHandleX + HANDLE_SIZE);
+    return QRectF(x, (height() - HANDLE_SIZE) / 2, HANDLE_SIZE, HANDLE_SIZE);
 }
