@@ -1,5 +1,6 @@
 #include "main_widget.h"
 
+#include <qbrush.h>
 #include <qcolor.h>
 #include <qfileinfo.h>
 #include <qfiledialog.h>
@@ -40,6 +41,14 @@ MainWidget::MainWidget(QWidget* parent)
     scene_ = new QGraphicsScene(this);
     pixmapItem_ = scene_->addPixmap(QPixmap());
 
+    // 初始化图像裁切范围外的黑色遮罩。
+    QBrush dimBrush(QColor(0, 0, 0, 120));
+    dimOverlayLeft_ = scene_->addRect(QRectF(), Qt::NoPen, dimBrush);
+    dimOverlayRight_ = scene_->addRect(QRectF(), Qt::NoPen, dimBrush);
+    dimOverlayLeft_->setVisible(false);
+    dimOverlayRight_->setVisible(false);
+
+    // 初始化裁切范围提示线。
     QPen hintPen(RANGE_HINT_LINE_COLOR);
     hintPen.setCosmetic(true);
     rangeHintLineLow_ = scene_->addLine(0, 0, 0, 0, hintPen);
@@ -343,12 +352,17 @@ void MainWidget::updateDisplayedImage(const QImage& image)
 void MainWidget::updateRangeHintLines()
 {
     bool hasImage = !currentImage_.isNull();
+    dimOverlayLeft_->setVisible(hasImage);
+    dimOverlayRight_->setVisible(hasImage);
     rangeHintLineLow_->setVisible(hasImage);
     rangeHintLineHigh_->setVisible(hasImage);
 
     if (hasImage)
     {
+        double w = currentImageSize_.width();
         double h = currentImageSize_.height();
+        dimOverlayLeft_->setRect(0, 0, cropRangeLow_, h);
+        dimOverlayRight_->setRect(cropRangeHigh_, 0, w - cropRangeHigh_, h);
         rangeHintLineLow_->setLine(cropRangeLow_, 0, cropRangeLow_, h);
         rangeHintLineHigh_->setLine(cropRangeHigh_, 0, cropRangeHigh_, h);
     }

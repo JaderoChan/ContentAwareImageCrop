@@ -74,6 +74,8 @@ private:
 
     QGraphicsScene* scene_ = nullptr;
     QGraphicsPixmapItem* pixmapItem_ = nullptr;
+    QGraphicsRectItem* dimOverlayLeft_ = nullptr;
+    QGraphicsRectItem* dimOverlayRight_ = nullptr;
     QGraphicsLineItem* rangeHintLineLow_ = nullptr;
     QGraphicsLineItem* rangeHintLineHigh_ = nullptr;
 
