@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cassert>
 #include <cstddef>
 
 template <typename T>
@@ -83,10 +82,8 @@ public:
             newNode->setPrevious(prev);
             newNode->setNext(current_);
             current_->setPrevious(newNode);
-            if (prev)
-                prev->setNext(newNode);
-            else
-                head_ = newNode;
+            if (prev)   prev->setNext(newNode);
+            else        head_ = newNode;
 
             length_++;
         }
@@ -196,6 +193,22 @@ public:
             }
 
             current_->setNext(nullptr);
+        }
+    }
+
+    void removeHead()
+    {
+        if (head_)
+        {
+            _NodeTp* oldHead = head_;
+            _NodeTp* next = head_->next();
+
+            if (current_ == head_) current_ = next;
+            head_ = next;
+            delete oldHead;
+            if (next) next->setPrevious(nullptr);
+
+            length_--;
         }
     }
 
