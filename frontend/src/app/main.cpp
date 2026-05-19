@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
     a.setApplicationVersion(APP_VERSION);
     a.setWindowIcon(getLogoIcon());
 
-    // 设置 Qt 图像内存分配上限。
+    // 设置 Qt 图像内存分配上限
     QImageReader::setAllocationLimit(QIMAGE_ALLOCATION_LIMIT);
 
     // 设置语言
@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
         setLanguage(settings.language);
     }
 
-    // Set to dark palette.
+    // 设置暗色调色板
     setDarkPalette();
 
     MainWidget wgt;
