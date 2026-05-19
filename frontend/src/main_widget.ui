@@ -254,7 +254,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="horFlipButton">
+          <widget class="QPushButton" name="verFlipButton">
            <property name="minimumSize">
             <size>
              <width>42</width>
@@ -286,7 +286,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="verFlipButton">
+          <widget class="QPushButton" name="horFlipButton">
            <property name="minimumSize">
             <size>
              <width>42</width>
