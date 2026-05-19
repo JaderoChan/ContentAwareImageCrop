@@ -8,7 +8,6 @@
 #include <qtransform.h>
 #include <qurl.h>
 
-#include <config.h>
 #include "strict_int_validator.h"
 
 void popupMessageBox(
@@ -381,8 +380,9 @@ void MainWidget::updateCurrentImageVariables(const QImage& image)
 void MainWidget::addNewImage(const QImage& image)
 {
     records_.removeAllNext();
+    if (records_.length() == maxRecordSteps_)
+        records_.removeHead();
     records_.insertNext(image);
-    records_.moveToNext();
 
     updateCurrentImageVariables(image);
     updateDisplayedImage(currentImage_);
@@ -402,7 +402,6 @@ bool MainWidget::importImage(const QString& filename)
 
         records_.clear();
         records_.insertNext(image);
-        records_.moveToHead();
 
         updateCurrentImageVariables(image);
         updateDisplayedImage(currentImage_);

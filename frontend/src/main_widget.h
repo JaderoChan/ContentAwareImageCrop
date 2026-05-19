@@ -8,6 +8,7 @@
 #include <qgraphicsitem.h>
 
 #include <trwidgets/trwidget.h>
+#include <config.h>
 #include "linked_list.h"
 #include "ui_main_widget.h"
 
@@ -73,6 +74,7 @@ private:
     QImage originImage_;
     QImage currentImage_;
     // 步骤记录，用于操作撤销与重做。
+    size_t maxRecordSteps_ = DEFAULT_MAX_RECORD_STEP;
     StepRecords records_;
 
     QString filename_;
