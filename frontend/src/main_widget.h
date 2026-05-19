@@ -82,9 +82,6 @@ private:
         size_t cropValue = 0;
     };
 
-    // TODO
-    // RecordStep createStepFromUi(const QImage& originImage, const QImage& currentImage);
-
     // 更新图像画面的显示。
     void updateDisplayedImage(const QImage& image);
     // 缩放图像（小于视图窗口尺寸的图像将按原大小居中显示，大于视图窗口尺寸的图像将等比缩放至合适大小）。
