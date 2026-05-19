@@ -21,6 +21,11 @@ public:
     bool importImage(bool showMessageBoxOnError);
     bool exportImage(bool showMessageBoxOnError);
 
+    bool setMaxRecordSteps(size_t steps);
+
+    bool setCropRange(size_t low, size_t high);
+    bool setCropValue(size_t value);
+
     // 开始内容感知图像裁切。
     void startCrop(bool highlightLowEnergyLine);
 

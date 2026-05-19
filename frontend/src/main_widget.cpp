@@ -5,6 +5,7 @@
 #include <qlist.h>
 #include <qmessagebox.h>
 #include <qmimedata.h>
+#include <qshortcut.h>
 #include <qtransform.h>
 #include <qurl.h>
 
@@ -45,6 +46,13 @@ MainWidget::MainWidget(QWidget* parent)
     ui.anticlockwiseButton->setShortcut(QKeySequence(QKeyCombination(Qt::Key_BraceLeft)));
     ui.undoButton->setShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Z)));
     ui.redoButton->setShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Y)));
+
+    QShortcut(QKeySequence(QKeyCombination(Qt::Key_Up)), this, [=]() { setCropValue(cropValue_ + 1); });
+    QShortcut(QKeySequence(QKeyCombination(Qt::Key_Down)), this, [=]() { setCropValue(cropValue_ - 1); });
+    QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Up)), this, [=]()
+    { setCropValue((cropRangeHigh_ - cropRangeLow_ - cropValue_) < 10 ? cropRangeHigh_ : (cropValue_ + 10)); });
+    QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Down)), this, [=]()
+    { setCropValue(cropValue_ < 10 ? 0 : (cropValue_ - 10)); });
 
     // Connects
     connect(ui.clockwiseButton, &QPushButton::clicked, this, &MainWidget::clockwiseImage);
@@ -121,6 +129,43 @@ bool MainWidget::exportImage(bool showMessageBoxOnError)
     }
 
     return true;
+}
+
+bool MainWidget::setMaxRecordSteps(size_t steps)
+{
+    if (steps == 0)
+        return false;
+
+    maxRecordSteps_ = steps;
+    while (records_.length() > maxRecordSteps_)
+        records_.removeHead();
+
+    return true;
+}
+
+bool MainWidget::setCropRange(size_t low, size_t high)
+{
+    if (low >= high || low > currentImageSize_.width() || high > currentImageSize_.width())
+        return false;
+
+    cropRangeLow_ = low;
+    cropRangeHigh_ = high;
+    if (cropValue_ > (cropRangeHigh_ - cropRangeLow_))
+        setCropValue(0);
+
+    updateRangeSliderUi();
+}
+
+bool MainWidget::setCropValue(size_t value)
+{
+    if (value > (cropRangeHigh_ - cropRangeLow_))
+        return false;
+
+    cropValue_ = value;
+    resultImageSize_.setWidth(currentImageSize_.width() - cropValue_);
+
+    updateImageSizeUi();
+    updateSliderUi();
 }
 
 void MainWidget::startCrop(bool highlightLowEnergyLine)
@@ -238,15 +283,12 @@ bool MainWidget::eventFilter(QObject* obj, QEvent* event)
 
 void MainWidget::onResetRangeButtonClicked()
 {
-    cropRangeLow_ = 0;
-    cropRangeHigh_ = currentImageSize_.width();
-    updateRangeSliderUi();
+    setCropRange(0, currentImageSize_.width());
 }
 
 void MainWidget::onResetValueButtonClicked()
 {
-    cropValue_ = 0;
-    updateSliderUi();
+    setCropValue(0);
 }
 
 void MainWidget::resizeEvent(QResizeEvent* event)
@@ -321,14 +363,16 @@ void MainWidget::updateRangeSliderUi()
 
 void MainWidget::updateSliderUi()
 {
-    ui.valueSlider->setRange(0, currentImageSize_.width());
+    size_t cropRange = cropRangeHigh_ - cropRangeLow_;
+
+    ui.valueSlider->setRange(0, cropRange);
     ui.valueSlider->setValue(cropValue_);
-    ui.valueLineEdit->setEnabled(currentImageSize_.width() != 0);
+    ui.valueLineEdit->setEnabled(cropRange != 0);
 
     ui.valueLineEdit->setText(QString::number(cropValue_));
-    ui.valueLineEdit->setValidator(new StrictIntValidator(0, currentImageSize_.width(), &cropValue_, this));
-    ui.valueLineEdit->setEnabled(currentImageSize_.width() != 0);
-    ui.resetValueButton->setEnabled(currentImageSize_.width() != 0);
+    ui.valueLineEdit->setValidator(new StrictIntValidator(0, cropRange, &cropValue_, this));
+    ui.valueLineEdit->setEnabled(cropRange != 0);
+    ui.resetValueButton->setEnabled(cropRange != 0);
 }
 
 void MainWidget::updateUndoRedoUi()
