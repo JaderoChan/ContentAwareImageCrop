@@ -30,16 +30,20 @@ public:
 public slots:
     void setMinimum(unsigned int minimum);
     void setMaximum(unsigned int maximum);
+    void setRange(unsigned int minimum, unsigned int maximum);
+
     void setLowValue(unsigned int lowValue);
     void setHighValue(unsigned int highValue);
-    void setRange(unsigned int minimum, unsigned int maximum);
+    void setValue(unsigned int lowValue, unsigned int highValue);
 
 signals:
     void minimumChanged(unsigned int minimum);
     void maximumChanged(unsigned int maximum);
+    void rangeChanged(unsigned int minimum, unsigned int maximum);
+
     void lowValueChanged(unsigned int lowValue);
     void highValueChanged(unsigned int highValue);
-    void rangeChanged(unsigned int minimum, unsigned int maximum);
+    void valueChanged(unsigned int lowValue, unsigned int highValue);
 
 private:
     void mousePressEvent(QMouseEvent *e) override;

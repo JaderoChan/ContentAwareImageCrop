@@ -121,6 +121,12 @@ void QRangeSlider::setMaximum(unsigned int maximum)
     }
 }
 
+void QRangeSlider::setRange(unsigned int minimum, unsigned int maximum)
+{
+    setMinimum(minimum);
+    setMaximum(maximum);
+}
+
 void QRangeSlider::setLowValue(unsigned int lowValue)
 {
     if (lowValue_ != lowValue)
@@ -138,6 +144,7 @@ void QRangeSlider::setLowValue(unsigned int lowValue)
 
         update();
         emit lowValueChanged(lowValue_);
+        emit valueChanged(lowValue_, highValue_);
     }
 }
 
@@ -158,13 +165,14 @@ void QRangeSlider::setHighValue(unsigned int highValue)
 
         update();
         emit highValueChanged(highValue_);
+        emit valueChanged(lowValue_, highValue_);
     }
 }
 
-void QRangeSlider::setRange(unsigned int minimum, unsigned int maximum)
+void QRangeSlider::setValue(unsigned int lowValue, unsigned int highValue)
 {
-    setMinimum(minimum);
-    setMaximum(maximum);
+    setLowValue(lowValue);
+    setHighValue(highValue);
 }
 
 void QRangeSlider::mousePressEvent(QMouseEvent* e)
