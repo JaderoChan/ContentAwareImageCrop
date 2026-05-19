@@ -13,7 +13,7 @@ void StrictIntValidator::setDynamicTop(const size_t* ptr)
     dynamicTop_ = ptr;
 }
 
-State StrictIntValidator::validate(QString& input, int& pos) const
+QValidator::State StrictIntValidator::validate(QString& input, int& pos) const
 {
     State state = QIntValidator::validate(input, pos);
 
