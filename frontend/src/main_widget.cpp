@@ -66,6 +66,20 @@ MainWidget::MainWidget(QWidget* parent)
     connect(ui.undoButton, &QPushButton::clicked, this, &MainWidget::undo);
     connect(ui.redoButton, &QPushButton::clicked, this, &MainWidget::redo);
 
+    connect(ui.rangeSlider, &QRangeSlider::valueChanged, this, [=](unsigned int low, unsigned int high)
+    { setCropRange(low, cropRangeHigh_); });
+    connect(ui.rangeLowLineEdit, &QLineEdit::textEdited, this, [=](const QString& low)
+    { setCropRange(low.toUInt(), cropRangeHigh_); });
+    connect(ui.rangeHighLineEdit, &QLineEdit::textEdited, this, [=](const QString& high)
+    { setCropRange(cropRangeLow_, high.toUInt()); });
+
+    connect(ui.valueSlider, &QSlider::valueChanged, this, [=](int value)
+    { setCropValue(static_cast<size_t>(value)); });
+    connect(ui.valueLineEdit, &QLineEdit::textEdited, this, [=](const QString& value)
+    { setCropValue(value.toUInt()); });
+
+    connect(ui.cropButton, &QPushButton::clicked, this, &MainWidget::startCrop);
+
     // TODO: Hard coding is not allowed! Show message box when error occured.
     connect(ui.exportButton, &QPushButton::clicked, this, [=]() { exportImage(true); });
 
