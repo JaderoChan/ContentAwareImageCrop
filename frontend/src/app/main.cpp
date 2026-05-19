@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
 
     int ret = a.exec();
 
-    // 更新翻译文件（实际上由编译选项 `UPDATE_TRANSLATIONS_FILES` 决定是否真正更新）
+    // 更新翻译文件（实际上由编译选项 UPDATE_TRANSLATIONS_FILES 决定是否真正更新）
     easytr::updateTranslationsFiles();
 
     return ret;
