@@ -834,7 +834,7 @@
   <customwidget>
    <class>QRangeSlider</class>
    <extends>QWidget</extends>
-   <header location="global">QRangeSlider.hpp</header>
+   <header location="global">common/QRangeSlider.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

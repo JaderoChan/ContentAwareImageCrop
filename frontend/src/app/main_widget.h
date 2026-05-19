@@ -9,7 +9,7 @@
 
 #include <trwidgets/trwidget.h>
 #include <config.h>
-#include "linked_list.h"
+#include <common/linked_list.h>
 #include "ui_main_widget.h"
 
 class MainWidget : public TrWidget

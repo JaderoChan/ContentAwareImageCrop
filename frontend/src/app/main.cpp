@@ -4,9 +4,9 @@
 #include <easy_translate.hpp>
 
 #include <config.h>
+#include <common/dark_palette.h>
 #include "logo_icon.h"
 #include "settings.h"
-#include "dark_palette.h"
 #include "main_widget.h"
 
 int main(int argc, char* argv[])

@@ -12,7 +12,7 @@
 #include <qtransform.h>
 #include <qurl.h>
 
-#include "strict_int_validator.h"
+#include <common/strict_int_validator.h>
 
 // TODO: No hard coding value.
 // 裁切范围提示线颜色。
