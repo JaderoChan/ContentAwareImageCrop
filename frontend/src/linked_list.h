@@ -85,6 +85,7 @@ public:
             if (prev)   prev->setNext(newNode);
             else        head_ = newNode;
 
+            current_ = newNode;
             length_++;
         }
         else if (!head_)
@@ -109,6 +110,7 @@ public:
             if (next)
                 next->setPrevious(newNode);
 
+            current_ = newNode;
             length_++;
         }
         else if (!head_)
