@@ -67,7 +67,7 @@ MainWidget::MainWidget(QWidget* parent)
     connect(ui.redoButton, &QPushButton::clicked, this, &MainWidget::redo);
 
     connect(ui.rangeSlider, &QRangeSlider::valueChanged, this, [this](unsigned int low, unsigned int high)
-    { setCropRange(low, cropRangeHigh_); });
+    { setCropRange(low, high); });
     connect(ui.rangeLowLineEdit, &QLineEdit::textEdited, this, [this](const QString& low)
     { setCropRange(low.toUInt(), cropRangeHigh_); });
     connect(ui.rangeHighLineEdit, &QLineEdit::textEdited, this, [this](const QString& high)
@@ -164,10 +164,10 @@ bool MainWidget::setCropRange(size_t low, size_t high)
 
     cropRangeLow_ = low;
     cropRangeHigh_ = high;
-    if (cropValue_ > (cropRangeHigh_ - cropRangeLow_))
-        setCropValue(0);
+    setCropValue(cropValue_ > (cropRangeHigh_ - cropRangeLow_) ? 0 : cropValue_);
 
     updateRangeSliderUi();
+    return true;
 }
 
 bool MainWidget::setCropValue(size_t value)
@@ -180,6 +180,7 @@ bool MainWidget::setCropValue(size_t value)
 
     updateImageSizeUi();
     updateSliderUi();
+    return true;
 }
 
 void MainWidget::startCrop(bool highlightLowEnergyLine)
