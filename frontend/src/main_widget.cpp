@@ -47,11 +47,11 @@ MainWidget::MainWidget(QWidget* parent)
     ui.undoButton->setShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Z)));
     ui.redoButton->setShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Y)));
 
-    QShortcut(QKeySequence(QKeyCombination(Qt::Key_Up)), this, [=]() { setCropValue(cropValue_ + 1); });
-    QShortcut(QKeySequence(QKeyCombination(Qt::Key_Down)), this, [=]() { setCropValue(cropValue_ - 1); });
-    QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Up)), this, [=]()
+    QShortcut(QKeySequence(QKeyCombination(Qt::Key_Up)), this, [this]() { setCropValue(cropValue_ + 1); });
+    QShortcut(QKeySequence(QKeyCombination(Qt::Key_Down)), this, [this]() { setCropValue(cropValue_ - 1); });
+    QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Up)), this, [this]()
     { setCropValue((cropRangeHigh_ - cropRangeLow_ - cropValue_) < 10 ? cropRangeHigh_ : (cropValue_ + 10)); });
-    QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Down)), this, [=]()
+    QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Down)), this, [this]()
     { setCropValue(cropValue_ < 10 ? 0 : (cropValue_ - 10)); });
 
     // Connects
@@ -66,22 +66,22 @@ MainWidget::MainWidget(QWidget* parent)
     connect(ui.undoButton, &QPushButton::clicked, this, &MainWidget::undo);
     connect(ui.redoButton, &QPushButton::clicked, this, &MainWidget::redo);
 
-    connect(ui.rangeSlider, &QRangeSlider::valueChanged, this, [=](unsigned int low, unsigned int high)
+    connect(ui.rangeSlider, &QRangeSlider::valueChanged, this, [this](unsigned int low, unsigned int high)
     { setCropRange(low, cropRangeHigh_); });
-    connect(ui.rangeLowLineEdit, &QLineEdit::textEdited, this, [=](const QString& low)
+    connect(ui.rangeLowLineEdit, &QLineEdit::textEdited, this, [this](const QString& low)
     { setCropRange(low.toUInt(), cropRangeHigh_); });
-    connect(ui.rangeHighLineEdit, &QLineEdit::textEdited, this, [=](const QString& high)
+    connect(ui.rangeHighLineEdit, &QLineEdit::textEdited, this, [this](const QString& high)
     { setCropRange(cropRangeLow_, high.toUInt()); });
 
-    connect(ui.valueSlider, &QSlider::valueChanged, this, [=](int value)
+    connect(ui.valueSlider, &QSlider::valueChanged, this, [this](int value)
     { setCropValue(static_cast<size_t>(value)); });
-    connect(ui.valueLineEdit, &QLineEdit::textEdited, this, [=](const QString& value)
+    connect(ui.valueLineEdit, &QLineEdit::textEdited, this, [this](const QString& value)
     { setCropValue(value.toUInt()); });
 
     connect(ui.cropButton, &QPushButton::clicked, this, &MainWidget::startCrop);
 
     // TODO: Hard coding is not allowed! Show message box when error occured.
-    connect(ui.exportButton, &QPushButton::clicked, this, [=]() { exportImage(true); });
+    connect(ui.exportButton, &QPushButton::clicked, this, [this]() { exportImage(true); });
 
     // Update UI
     updateAllUi();
