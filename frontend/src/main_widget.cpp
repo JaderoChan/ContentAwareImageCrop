@@ -1,15 +1,19 @@
 #include "main_widget.h"
 
+#include <qcolor.h>
 #include <qfileinfo.h>
 #include <qfiledialog.h>
 #include <qlist.h>
 #include <qmessagebox.h>
 #include <qmimedata.h>
+#include <qpen.h>
 #include <qshortcut.h>
 #include <qtransform.h>
 #include <qurl.h>
 
 #include "strict_int_validator.h"
+
+constexpr QColor RANGE_HINT_LINE_COLOR(0, 102, 255);
 
 void popupMessageBox(
     QMessageBox::Icon icon, const QString& title, const QString& text,
@@ -35,6 +39,14 @@ MainWidget::MainWidget(QWidget* parent)
     // Init graphics view
     scene_ = new QGraphicsScene(this);
     pixmapItem_ = scene_->addPixmap(QPixmap());
+
+    QPen hintPen(RANGE_HINT_LINE_COLOR);
+    hintPen.setCosmetic(true);
+    rangeHintLineLow_ = scene_->addLine(0, 0, 0, 0, hintPen);
+    rangeHintLineHigh_ = scene_->addLine(0, 0, 0, 0, hintPen);
+    rangeHintLineLow_->setVisible(false);
+    rangeHintLineHigh_->setVisible(false);
+
     ui.graphicsView->setScene(scene_);
     ui.graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     ui.graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -62,8 +74,10 @@ MainWidget::MainWidget(QWidget* parent)
     connect(ui.horFlipButton, &QPushButton::clicked, this, &MainWidget::horizontalFlipImage);
     connect(ui.verFlipButton, &QPushButton::clicked, this, &MainWidget::verticalFlipImage);
 
-    connect(ui.resetRangeButton, &QPushButton::clicked, this, &MainWidget::onResetRangeButtonClicked);
-    connect(ui.resetValueButton, &QPushButton::clicked, this, &MainWidget::onResetValueButtonClicked);
+    connect(ui.resetRangeButton, &QPushButton::clicked, this, [this]()
+    { setCropRange(0, currentImageSize_.width()); });
+    connect(ui.resetValueButton, &QPushButton::clicked, this, [this]()
+    { setCropValue(0); });
 
     connect(ui.undoButton, &QPushButton::clicked, this, &MainWidget::undo);
     connect(ui.redoButton, &QPushButton::clicked, this, &MainWidget::redo);
@@ -168,7 +182,7 @@ bool MainWidget::setCropRange(size_t low, size_t high)
     cropRangeHigh_ = high;
     setCropValue(cropValue_ > (cropRangeHigh_ - cropRangeLow_) ? 0 : cropValue_);
 
-    updateRelatedRangeUi();
+    updateRangeRelatedUi();
     return true;
 }
 
@@ -181,7 +195,7 @@ bool MainWidget::setCropValue(size_t value)
     resultImageSize_.setWidth(currentImageSize_.width() - cropValue_);
 
     updateImageSizeHintUi();
-    updateRalatedValueUi();
+    updateValueRalatedUi();
     return true;
 }
 
@@ -298,16 +312,6 @@ bool MainWidget::eventFilter(QObject* obj, QEvent* event)
     return TrWidget::eventFilter(obj, event);
 }
 
-void MainWidget::onResetRangeButtonClicked()
-{
-    setCropRange(0, currentImageSize_.width());
-}
-
-void MainWidget::onResetValueButtonClicked()
-{
-    setCropValue(0);
-}
-
 void MainWidget::resizeEvent(QResizeEvent* event)
 {
     TrWidget::resizeEvent(event);
@@ -336,6 +340,20 @@ void MainWidget::updateDisplayedImage(const QImage& image)
     updateViewTransform();
 }
 
+void MainWidget::updateRangeHintLines()
+{
+    bool hasImage = !currentImage_.isNull();
+    rangeHintLineLow_->setVisible(hasImage);
+    rangeHintLineHigh_->setVisible(hasImage);
+
+    if (hasImage)
+    {
+        double h = currentImageSize_.height();
+        rangeHintLineLow_->setLine(cropRangeLow_, 0, cropRangeLow_, h);
+        rangeHintLineHigh_->setLine(cropRangeHigh_, 0, cropRangeHigh_, h);
+    }
+}
+
 static double byteToMB(size_t byte)
 {
     constexpr size_t rate = 1024 * 1024;
@@ -355,15 +373,22 @@ void MainWidget::updateImageSizeHintUi()
     ui.resultSizeLabel->setText(QString("%1 x %2").arg(resultImageSize_.width()).arg(resultImageSize_.height()));
 }
 
-void MainWidget::updateRelatedRangeUi()
+void MainWidget::updateRangeRelatedUi()
 {
-    ui.rangeSlider->setRange(0, currentImageSize_.width());
-    ui.rangeSlider->setLowValue(cropRangeLow_);
-    ui.rangeSlider->setHighValue(cropRangeHigh_);
+    {
+        QSignalBlocker blocker(ui.rangeSlider);
+        ui.rangeSlider->setRange(0, currentImageSize_.width());
+        ui.rangeSlider->setLowValue(cropRangeLow_);
+        ui.rangeSlider->setHighValue(cropRangeHigh_);
+    }
     ui.rangeSlider->setEnabled(currentImageSize_.width() != 0);
 
-    ui.rangeLowLineEdit->setText(QString::number(cropRangeLow_));
-    ui.rangeHighLineEdit->setText(QString::number(cropRangeHigh_));
+    {
+        QSignalBlocker lowBlocker(ui.rangeLowLineEdit);
+        QSignalBlocker highBlocker(ui.rangeHighLineEdit);
+        ui.rangeLowLineEdit->setText(QString::number(cropRangeLow_));
+        ui.rangeHighLineEdit->setText(QString::number(cropRangeHigh_));
+    }
 
     auto* lowValidator = new StrictIntValidator(0, currentImageSize_.width(), &cropRangeLow_, this);
     lowValidator->setDynamicTop(&cropRangeHigh_);
@@ -376,17 +401,25 @@ void MainWidget::updateRelatedRangeUi()
     ui.rangeLowLineEdit->setEnabled(currentImageSize_.width() != 0);
     ui.rangeHighLineEdit->setEnabled(currentImageSize_.width() != 0);
     ui.resetRangeButton->setEnabled(currentImageSize_.width() != 0);
+
+    updateRangeHintLines();
 }
 
-void MainWidget::updateRalatedValueUi()
+void MainWidget::updateValueRalatedUi()
 {
     size_t cropRange = cropRangeHigh_ - cropRangeLow_;
 
-    ui.valueSlider->setRange(0, cropRange);
-    ui.valueSlider->setValue(cropValue_);
+    {
+        QSignalBlocker blocker(ui.valueSlider);
+        ui.valueSlider->setRange(0, cropRange);
+        ui.valueSlider->setValue(cropValue_);
+    }
     ui.valueLineEdit->setEnabled(cropRange != 0);
 
-    ui.valueLineEdit->setText(QString::number(cropValue_));
+    {
+        QSignalBlocker blocker(ui.valueLineEdit);
+        ui.valueLineEdit->setText(QString::number(cropValue_));
+    }
     ui.valueLineEdit->setValidator(new StrictIntValidator(0, cropRange, &cropValue_, this));
     ui.valueLineEdit->setEnabled(cropRange != 0);
     ui.resetValueButton->setEnabled(cropRange != 0);
@@ -422,8 +455,8 @@ void MainWidget::updateAllUi()
 {
     updateFileInfoUi();
     updateImageSizeHintUi();
-    updateRelatedRangeUi();
-    updateRalatedValueUi();
+    updateRangeRelatedUi();
+    updateValueRalatedUi();
     updateProgressBarAndButtonUi();
 }
 

@@ -42,9 +42,6 @@ protected:
     void resizeEvent(QResizeEvent* event) override;
     bool eventFilter(QObject* obj, QEvent* event) override;
 
-    void onResetRangeButtonClicked();
-    void onResetValueButtonClicked();
-
 private:
     using StepRecords = LinkedList<QImage>;
 
@@ -52,11 +49,13 @@ private:
     void updateDisplayedImage(const QImage& image);
     // 缩放图像（小于视图窗口尺寸的图像将按原大小居中显示，大于视图窗口尺寸的图像将等比缩放至合适大小）。
     void updateViewTransform();
+    // 更新裁切范围提示线的位置与可见性。
+    void updateRangeHintLines();
 
     void updateFileInfoUi();
     void updateImageSizeHintUi();
-    void updateRelatedRangeUi();
-    void updateRalatedValueUi();
+    void updateRangeRelatedUi();
+    void updateValueRalatedUi();
     void updateUndoRedoUi();
     // 包含了 updateUndoRedoUi 函数。
     void updateProgressBarAndButtonUi();
@@ -75,6 +74,8 @@ private:
 
     QGraphicsScene* scene_ = nullptr;
     QGraphicsPixmapItem* pixmapItem_ = nullptr;
+    QGraphicsLineItem* rangeHintLineLow_ = nullptr;
+    QGraphicsLineItem* rangeHintLineHigh_ = nullptr;
 
     QImage originImage_;
     QImage currentImage_;
