@@ -13,12 +13,14 @@ int main(int argc, char* argv[])
 {
     // 设置程序全局属性
     QApplication a(argc, argv);
-    QImageReader::setAllocationLimit(QIMAGE_ALLOCATION_LIMIT);
     a.setOrganizationDomain(APP_ORGANIZATION_DOMAIN);
     a.setOrganizationName(APP_ORGANIZATION);
     a.setApplicationName(APP_TITLE);
     a.setApplicationVersion(APP_VERSION);
     a.setWindowIcon(getLogoIcon());
+
+    // 设置 Qt 图像内存分配上限。
+    QImageReader::setAllocationLimit(QIMAGE_ALLOCATION_LIMIT);
 
     // 设置语言
     {
