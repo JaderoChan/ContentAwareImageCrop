@@ -77,13 +77,13 @@ MainWidget::MainWidget(QWidget* parent)
     QShortcut* exportImg = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_E)), this, [this]()
     { exportImage(true); });
     QShortcut* addOne = new QShortcut(QKeySequence(QKeyCombination(Qt::Key_Up)), this, [this]()
-    { setCropValue(cropValue_ + 1); });
+    { setCropValue(cropValue() + 1); });
     QShortcut* decreaseOne = new QShortcut(QKeySequence(QKeyCombination(Qt::Key_Down)), this, [this]()
-    { setCropValue(cropValue_ - 1); });
+    { setCropValue(cropValue() - 1); });
     QShortcut* addTen = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Up)), this, [this]()
-    { setCropValue((cropRangeHigh_ - cropRangeLow_ - cropValue_) < 10 ? cropRangeHigh_ : (cropValue_ + 10)); });
+    { setCropValue((cropRangeHigh() - cropRangeLow() - cropValue()) < 10 ? cropRangeHigh() : (cropValue() + 10)); });
     QShortcut* decreaseTen = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Down)), this, [this]()
-    { setCropValue(cropValue_ < 10 ? 0 : (cropValue_ - 10)); });
+    { setCropValue(cropValue() < 10 ? 0 : (cropValue() - 10)); });
 
     // Connects
     connect(ui.clockwiseButton, &QPushButton::clicked, this, &MainWidget::clockwiseImage);
@@ -92,7 +92,7 @@ MainWidget::MainWidget(QWidget* parent)
     connect(ui.verFlipButton, &QPushButton::clicked, this, &MainWidget::verticalFlipImage);
 
     connect(ui.resetRangeButton, &QPushButton::clicked, this, [this]()
-    { setCropRange(0, currentImageSize_.width()); });
+    { setCropRange(0, currentImageSize().width()); });
     connect(ui.resetValueButton, &QPushButton::clicked, this, [this]()
     { setCropValue(0); });
 
@@ -102,9 +102,9 @@ MainWidget::MainWidget(QWidget* parent)
     connect(ui.rangeSlider, &QRangeSlider::valueChanged, this, [this](unsigned int low, unsigned int high)
     { setCropRange(low, high); });
     connect(ui.rangeLowLineEdit, &QLineEdit::textEdited, this, [this](const QString& low)
-    { setCropRange(low.toUInt(), cropRangeHigh_); });
+    { setCropRange(low.toUInt(), cropRangeHigh()); });
     connect(ui.rangeHighLineEdit, &QLineEdit::textEdited, this, [this](const QString& high)
-    { setCropRange(cropRangeLow_, high.toUInt()); });
+    { setCropRange(cropRangeLow(), high.toUInt()); });
 
     connect(ui.valueSlider, &QSlider::valueChanged, this, [this](int value)
     { setCropValue(static_cast<size_t>(value)); });
@@ -192,12 +192,12 @@ bool MainWidget::setMaxRecordSteps(size_t steps)
 
 bool MainWidget::setCropRange(size_t low, size_t high)
 {
-    if (low >= high || low > currentImageSize_.width() || high > currentImageSize_.width())
+    if (!getCurrent() || low >= high || low > currentImageSize().width() || high > currentImageSize().width())
         return false;
 
-    cropRangeLow_ = low;
-    cropRangeHigh_ = high;
-    setCropValue(cropValue_ > (cropRangeHigh_ - cropRangeLow_) ? 0 : cropValue_);
+    getCurrent()->cropRangeLow = low;
+    getCurrent()->cropRangeHigh = high;
+    setCropValue(cropValue() > (high - low) ? 0 : cropValue());
 
     updateRangeRelatedUi();
     return true;
@@ -205,11 +205,10 @@ bool MainWidget::setCropRange(size_t low, size_t high)
 
 bool MainWidget::setCropValue(size_t value)
 {
-    if (value > (cropRangeHigh_ - cropRangeLow_))
+    if (!getCurrent() || value > (cropRangeHigh() - cropRangeLow()))
         return false;
 
-    cropValue_ = value;
-    resultImageSize_.setWidth(currentImageSize_.width() - cropValue_);
+    getCurrent()->cropValue = value;
 
     updateImageSizeHintUi();
     updateValueRalatedUi();
@@ -223,29 +222,37 @@ void MainWidget::startCrop(bool highlightLowEnergyLine)
 
 void MainWidget::clockwiseImage()
 {
-    addNewImage(currentImage_.transformed(QTransform().rotate(90)));
+    if (currentImage().isNull())
+        return;
+    addNewImage(currentImage().transformed(QTransform().rotate(90)));
 }
 
 void MainWidget::anticlockwiseImage()
 {
-    addNewImage(currentImage_.transformed(QTransform().rotate(-90)));
+    if (currentImage().isNull())
+        return;
+    addNewImage(currentImage().transformed(QTransform().rotate(-90)));
 }
 
 void MainWidget::horizontalFlipImage()
 {
+    if (currentImage().isNull())
+        return;
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 13, 0))
-    addNewImage(currentImage_.flipped(Qt::Horizontal));
+    addNewImage(currentImage().flipped(Qt::Horizontal));
 #else
-    addNewImage(currentImage_.mirrored(true, false));
+    addNewImage(currentImage().mirrored(true, false));
 #endif
 }
 
 void MainWidget::verticalFlipImage()
 {
+    if (currentImage().isNull())
+        return;
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 13, 0))
-    addNewImage(currentImage_.flipped(Qt::Vertical));
+    addNewImage(currentImage().flipped(Qt::Vertical));
 #else
-    addNewImage(currentImage_.mirrored(false, true));
+    addNewImage(currentImage().mirrored(false, true));
 #endif
 }
 
@@ -254,13 +261,10 @@ bool MainWidget::undo()
     if (records_.current() && records_.current()->hasPrevious())
     {
         records_.moveToPrevious();
-        QImage image = records_.current()->value();
-        updateCurrentImageVariables(image);
-        updateDisplayedImage(currentImage_);
+        updateDisplayedImage(currentImage());
         updateAllUi();
         return true;
     }
-
     return false;
 }
 
@@ -269,13 +273,10 @@ bool MainWidget::redo()
     if (records_.current() && records_.current()->hasNext())
     {
         records_.moveToNext();
-        QImage image = records_.current()->value();
-        updateCurrentImageVariables(image);
-        updateDisplayedImage(currentImage_);
+        updateDisplayedImage(currentImage());
         updateAllUi();
         return true;
     }
-
     return false;
 }
 
@@ -359,7 +360,7 @@ void MainWidget::updateDisplayedImage(const QImage& image)
 
 void MainWidget::updateRangeHintLines()
 {
-    bool hasImage = !currentImage_.isNull();
+    bool hasImage = !currentImage().isNull();
     dimOverlayLeft_->setVisible(hasImage);
     dimOverlayRight_->setVisible(hasImage);
     rangeHintLineLow_->setVisible(hasImage);
@@ -367,12 +368,12 @@ void MainWidget::updateRangeHintLines()
 
     if (hasImage)
     {
-        double w = currentImageSize_.width();
-        double h = currentImageSize_.height();
-        dimOverlayLeft_->setRect(0, 0, cropRangeLow_, h);
-        dimOverlayRight_->setRect(cropRangeHigh_, 0, w - cropRangeHigh_, h);
-        rangeHintLineLow_->setLine(cropRangeLow_, 0, cropRangeLow_, h);
-        rangeHintLineHigh_->setLine(cropRangeHigh_, 0, cropRangeHigh_, h);
+        double w = currentImageSize().width();
+        double h = currentImageSize().height();
+        dimOverlayLeft_->setRect(0, 0, cropRangeLow(), h);
+        dimOverlayRight_->setRect(cropRangeHigh(), 0, w - cropRangeHigh(), h);
+        rangeHintLineLow_->setLine(cropRangeLow(), 0, cropRangeLow(), h);
+        rangeHintLineHigh_->setLine(cropRangeHigh(), 0, cropRangeHigh(), h);
     }
 }
 
@@ -384,65 +385,65 @@ static double byteToMB(size_t byte)
 
 void MainWidget::updateFileInfoUi()
 {
-    ui.filenameLabel->setText(filename_.isEmpty() ? EASYTR("No Image") : filename_);
-    ui.filenameLabel->setToolTip(filename_);
-    ui.filesizeLabel->setText(QString("%1 MB").arg(byteToMB(filesize_)));
+    ui.filenameLabel->setText(filename().isEmpty() ? EASYTR("No Image") : filename());
+    ui.filenameLabel->setToolTip(filename());
+    ui.filesizeLabel->setText(QString("%1 MB").arg(byteToMB(filesize())));
 }
 
 void MainWidget::updateImageSizeHintUi()
 {
-    ui.originSizeLabel->setText(QString("%1 x %2").arg(originImageSize_.width()).arg(originImageSize_.height()));
-    ui.resultSizeLabel->setText(QString("%1 x %2").arg(resultImageSize_.width()).arg(resultImageSize_.height()));
+    ui.originSizeLabel->setText(QString("%1 x %2").arg(originImageSize().width()).arg(originImageSize().height()));
+    ui.resultSizeLabel->setText(QString("%1 x %2").arg(resultImageSize().width()).arg(resultImageSize().height()));
 }
 
 void MainWidget::updateRangeRelatedUi()
 {
     {
         QSignalBlocker blocker(ui.rangeSlider);
-        ui.rangeSlider->setRange(0, currentImageSize_.width());
-        ui.rangeSlider->setLowValue(cropRangeLow_);
-        ui.rangeSlider->setHighValue(cropRangeHigh_);
+        ui.rangeSlider->setRange(0, currentImageSize().width());
+        ui.rangeSlider->setLowValue(cropRangeLow());
+        ui.rangeSlider->setHighValue(cropRangeHigh());
     }
-    ui.rangeSlider->setEnabled(currentImageSize_.width() != 0);
+    ui.rangeSlider->setEnabled(currentImageSize().width() != 0);
 
     {
         QSignalBlocker lowBlocker(ui.rangeLowLineEdit);
         QSignalBlocker highBlocker(ui.rangeHighLineEdit);
-        ui.rangeLowLineEdit->setText(QString::number(cropRangeLow_));
-        ui.rangeHighLineEdit->setText(QString::number(cropRangeHigh_));
+        ui.rangeLowLineEdit->setText(QString::number(cropRangeLow()));
+        ui.rangeHighLineEdit->setText(QString::number(cropRangeHigh()));
     }
 
-    auto* lowValidator = new StrictIntValidator(0, currentImageSize_.width(), &cropRangeLow_, this);
-    lowValidator->setDynamicTop(&cropRangeHigh_);
+    auto* lowValidator = new StrictIntValidator(0, currentImageSize().width(), &getCurrent()->cropRangeLow, this);
+    lowValidator->setDynamicTop(&getCurrent()->cropRangeHigh);
     ui.rangeLowLineEdit->setValidator(lowValidator);
 
-    auto* highValidator = new StrictIntValidator(0, currentImageSize_.width(), &cropRangeHigh_, this);
-    highValidator->setDynamicBottom(&cropRangeLow_);
+    auto* highValidator = new StrictIntValidator(0, currentImageSize().width(), &getCurrent()->cropRangeHigh, this);
+    highValidator->setDynamicBottom(&getCurrent()->cropRangeLow);
     ui.rangeHighLineEdit->setValidator(highValidator);
 
-    ui.rangeLowLineEdit->setEnabled(currentImageSize_.width() != 0);
-    ui.rangeHighLineEdit->setEnabled(currentImageSize_.width() != 0);
-    ui.resetRangeButton->setEnabled(currentImageSize_.width() != 0);
+    ui.rangeLowLineEdit->setEnabled(currentImageSize().width() != 0);
+    ui.rangeHighLineEdit->setEnabled(currentImageSize().width() != 0);
+    ui.resetRangeButton->setEnabled(currentImageSize().width() != 0);
 
     updateRangeHintLines();
 }
 
 void MainWidget::updateValueRalatedUi()
 {
-    size_t cropRange = cropRangeHigh_ - cropRangeLow_;
+    size_t cropRange = cropRangeHigh() - cropRangeLow();
 
     {
         QSignalBlocker blocker(ui.valueSlider);
         ui.valueSlider->setRange(0, cropRange);
-        ui.valueSlider->setValue(cropValue_);
+        ui.valueSlider->setValue(cropValue());
     }
     ui.valueLineEdit->setEnabled(cropRange != 0);
 
     {
         QSignalBlocker blocker(ui.valueLineEdit);
-        ui.valueLineEdit->setText(QString::number(cropValue_));
+        ui.valueLineEdit->setText(QString::number(cropValue()));
     }
-    ui.valueLineEdit->setValidator(new StrictIntValidator(0, cropRange, &cropValue_, this));
+    ui.valueLineEdit->setValidator(new StrictIntValidator(0, cropRange, &getCurrent()->cropValue, this));
     ui.valueLineEdit->setEnabled(cropRange != 0);
     ui.resetValueButton->setEnabled(cropRange != 0);
 }
@@ -482,26 +483,17 @@ void MainWidget::updateAllUi()
     updateProgressBarAndButtonUi();
 }
 
-void MainWidget::updateCurrentImageVariables(const QImage& image)
-{
-    currentImage_ = image;
-    currentImageSize_ = image.size();
-    resultImageSize_ = currentImageSize_;
-
-    cropRangeLow_ = 0;
-    cropRangeHigh_ = currentImageSize_.width();
-    cropValue_ = 0;
-}
-
 void MainWidget::addNewImage(const QImage& image)
 {
     records_.removeAllNext();
     if (records_.length() == maxRecordSteps_)
         records_.removeHead();
-    records_.insertNext(image);
 
-    updateCurrentImageVariables(image);
-    updateDisplayedImage(currentImage_);
+    records_.insertNext(getCurrent() ?
+        RecordStep(originImage(), image, filename(), filesize(), 0, image.width(), 0) :
+        RecordStep(image, image, QString(), 0, 0, image.width(), 0));
+
+    updateDisplayedImage(currentImage());
     updateAllUi();
 }
 
@@ -510,22 +502,14 @@ bool MainWidget::importImage(const QString& filename)
     QImage image;
     if (image.load(filename))
     {
-        originImage_ = image;
-        originImageSize_ = image.size();
+        RecordStep step(image, image, filename, QFileInfo(filename).size(), 0, image.width(), 0);
+        records_.insertNext(step);
 
-        filename_ = filename;
-        filesize_ = QFileInfo(filename).size();
-
-        records_.clear();
-        records_.insertNext(image);
-
-        updateCurrentImageVariables(image);
-        updateDisplayedImage(currentImage_);
+        updateDisplayedImage(currentImage());
         updateAllUi();
 
         return true;
     }
-
     return false;
 }
 
@@ -533,9 +517,8 @@ bool MainWidget::exportImage(const QString& filename)
 {
     if (records_.current())
     {
-        QImage image = records_.current()->value();
+        QImage image = currentImage();
         return image.save(filename);
     }
-
     return false;
 }

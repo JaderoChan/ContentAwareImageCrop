@@ -37,13 +37,53 @@ public:
     bool undo();
     bool redo();
 
+    QImage originImage() const { return getCurrent() ? getCurrent()->originImage : QImage(); }
+    QImage currentImage() const { return getCurrent() ? getCurrent()->currentImage : QImage(); }
+
+    QString filename() const { return getCurrent() ? getCurrent()->filename : QString(); }
+    size_t filesize() const { return getCurrent() ? getCurrent()->filesize : 0; }
+
+    size_t cropRangeLow() const { return getCurrent() ? getCurrent()->cropRangeLow : 0; }
+    size_t cropRangeHigh() const { return getCurrent() ? getCurrent()->cropRangeHigh : 0; }
+    size_t cropValue() const { return getCurrent() ? getCurrent()->cropValue : 0; }
+
+    QSize originImageSize() const { return originImage().isNull() ? QSize(0, 0) : originImage().size(); }
+    QSize currentImageSize() const { return currentImage().isNull() ? QSize(0, 0) : currentImage().size(); }
+    QSize resultImageSize() const { return QSize(currentImage().width() - cropValue(), currentImage().height()); }
+
 protected:
     void updateText() override;
     void resizeEvent(QResizeEvent* event) override;
     bool eventFilter(QObject* obj, QEvent* event) override;
 
 private:
-    using StepRecords = LinkedList<QImage>;
+    struct RecordStep
+    {
+        RecordStep() = default;
+        RecordStep(
+            const QImage& originImage, const QImage& currentImage,
+            const QString& filename = QString(), size_t filesize = 0,
+            size_t cropRangeLow = 0, size_t cropRangeHigh = 0, size_t cropValue = 0)
+            : originImage(originImage), currentImage(currentImage),
+            filename(filename), filesize(filesize),
+            cropRangeLow(cropRangeLow), cropRangeHigh(cropRangeHigh), cropValue(cropValue) {}
+
+        // QImage 是隐式共享类之一，所以同一图片的多个步骤的 originImage 不会占用额外内存。
+        // 有关隐式共享的信息可以参见 https://doc.qt.io/qt-6/implicit-sharing.html。
+        QImage originImage;
+        QImage currentImage;
+        QString filename;
+        size_t filesize = 0;
+
+        // 裁切范围
+        size_t cropRangeLow = 0;
+        size_t cropRangeHigh = 0;
+        // 裁切值
+        size_t cropValue = 0;
+    };
+
+    // TODO
+    // RecordStep createStepFromUi(const QImage& originImage, const QImage& currentImage);
 
     // 更新图像画面的显示。
     void updateDisplayedImage(const QImage& image);
@@ -62,13 +102,14 @@ private:
     // 上面所有 UI 更新函数的集合。
     void updateAllUi();
 
-    // 仅更新与 Current Image （当前 Step 图像） 相关的变量值。
-    void updateCurrentImageVariables(const QImage& image);
-    // 将图像计入 Step Record，更新当前图像相关变量，更新图像显示和 UI 显示。
+    // 将图像计入 Step Record，更新与当前图像相关的变量，更新图像显示和 UI 显示。
     void addNewImage(const QImage& image);
 
     bool importImage(const QString& filename);
     bool exportImage(const QString& filename);
+
+    const RecordStep* getCurrent() const { return records_.current() ? &records_.current()->value() : nullptr; }
+    RecordStep* getCurrent() { return records_.current() ? &records_.current()->value() : nullptr; }
 
     Ui::MainWidget ui;
 
@@ -79,26 +120,9 @@ private:
     QGraphicsLineItem* rangeHintLineLow_ = nullptr;
     QGraphicsLineItem* rangeHintLineHigh_ = nullptr;
 
-    QImage originImage_;
-    QImage currentImage_;
     // 步骤记录，用于操作撤销与重做。
     size_t maxRecordSteps_ = DEFAULT_MAX_RECORD_STEP;
-    StepRecords records_;
-
-    QString filename_;
-    size_t filesize_ = 0;
-    // 原始图像尺寸
-    QSize originImageSize_ = {0, 0};
-    // 当前 Step 图像尺寸
-    QSize currentImageSize_ = {0, 0};
-    // 预估结果图像尺寸（当前 Step 图像裁切后的大小）
-    QSize resultImageSize_ = {0, 0};
-
-    // 裁切范围
-    size_t cropRangeLow_ = 0;
-    size_t cropRangeHigh_ = 0;
-    // 裁切值
-    size_t cropValue_ = 0;
+    LinkedList<RecordStep> records_;
 
     bool isCropping_ = false;
 
