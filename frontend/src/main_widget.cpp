@@ -12,15 +12,20 @@
 #include "strict_int_validator.h"
 
 void popupMessageBox(
-    QWidget* parent, const QString& title, const QString& text,
-    const QString& buttonText, QMessageBox::ButtonRole buttonRole = QMessageBox::AcceptRole)
+    QMessageBox::Icon icon, const QString& title, const QString& text,
+    const QString& buttonText, QMessageBox::ButtonRole buttonRole = QMessageBox::AcceptRole,
+    QWidget* parent = nullptr)
 {
-    QMessageBox msgBox(parent);
-    msgBox.setWindowTitle(text);
-    msgBox.setText(text);
+    QMessageBox msgBox(icon, title, text, QMessageBox::NoButton, parent);
     msgBox.addButton(buttonText, buttonRole);
     msgBox.exec();
 }
+
+void popupInformation(const QString& title, const QString& text, const QString& buttonText, QWidget* parent = nullptr)
+{ popupMessageBox(QMessageBox::Information, title, text, buttonText, QMessageBox::AcceptRole, parent); }
+
+void popupWarning(const QString& title, const QString& text, const QString& buttonText, QWidget* parent = nullptr)
+{ popupMessageBox(QMessageBox::Warning, title, text, buttonText, QMessageBox::AcceptRole, parent); }
 
 MainWidget::MainWidget(QWidget* parent)
     : TrWidget(parent)
@@ -72,7 +77,7 @@ bool MainWidget::importImage(bool showMessageBoxOnError)
     if (filename.isEmpty())
     {
         if (showMessageBoxOnError)
-            popupMessageBox(this, EASYTR("Warning"), EASYTR("No files are open."), EASYTR("Ok"));
+            popupInformation(EASYTR("Warning"), EASYTR("No files are open."), EASYTR("Ok"), this);
         return false;
     }
 
@@ -81,7 +86,7 @@ bool MainWidget::importImage(bool showMessageBoxOnError)
     if (!importImage(filename))
     {
         if (showMessageBoxOnError)
-            popupMessageBox(this, EASYTR("Warning"), EASYTR("Failed to open image file."), EASYTR("Ok"));
+            popupWarning(EASYTR("Warning"), EASYTR("Failed to open image file."), EASYTR("Ok"), this);
         return false;
     }
 
@@ -97,7 +102,7 @@ bool MainWidget::exportImage(bool showMessageBoxOnError)
     if (filename.isEmpty())
     {
         if (showMessageBoxOnError)
-            popupMessageBox(this, EASYTR("Warning"), EASYTR("No files are save."), EASYTR("Ok"));
+            popupInformation(EASYTR("Warning"), EASYTR("No files are save."), EASYTR("Ok"), this);
         return false;
     }
 
@@ -106,7 +111,7 @@ bool MainWidget::exportImage(bool showMessageBoxOnError)
     if (!exportImage(filename))
     {
         if (showMessageBoxOnError)
-            popupMessageBox(this, EASYTR("Warning"), EASYTR("Failed to save the image file."), EASYTR("Ok"));
+            popupWarning(EASYTR("Warning"), EASYTR("Failed to save the image file."), EASYTR("Ok"), this);
         return false;
     }
 
