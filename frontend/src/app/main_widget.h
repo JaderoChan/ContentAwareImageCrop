@@ -7,8 +7,8 @@
 #include <qgraphicsscene.h>
 #include <qgraphicsitem.h>
 
-#include <trwidgets/trwidget.h>
 #include <config.h>
+#include <trwidgets/trwidget.h>
 #include <common/linked_list.h>
 #include "ui_main_widget.h"
 
