@@ -54,9 +54,9 @@ private:
     void updateViewTransform();
 
     void updateFileInfoUi();
-    void updateImageSizeUi();
-    void updateRangeSliderUi();
-    void updateSliderUi();
+    void updateImageSizeHintUi();
+    void updateRelatedRangeUi();
+    void updateRalatedValueUi();
     void updateUndoRedoUi();
     // 包含了 updateUndoRedoUi 函数。
     void updateProgressBarAndButtonUi();

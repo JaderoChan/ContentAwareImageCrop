@@ -168,7 +168,7 @@ bool MainWidget::setCropRange(size_t low, size_t high)
     cropRangeHigh_ = high;
     setCropValue(cropValue_ > (cropRangeHigh_ - cropRangeLow_) ? 0 : cropValue_);
 
-    updateRangeSliderUi();
+    updateRelatedRangeUi();
     return true;
 }
 
@@ -180,8 +180,8 @@ bool MainWidget::setCropValue(size_t value)
     cropValue_ = value;
     resultImageSize_.setWidth(currentImageSize_.width() - cropValue_);
 
-    updateImageSizeUi();
-    updateSliderUi();
+    updateImageSizeHintUi();
+    updateRalatedValueUi();
     return true;
 }
 
@@ -349,13 +349,13 @@ void MainWidget::updateFileInfoUi()
     ui.filesizeLabel->setText(QString("%1 MB").arg(byteToMB(filesize_)));
 }
 
-void MainWidget::updateImageSizeUi()
+void MainWidget::updateImageSizeHintUi()
 {
     ui.originSizeLabel->setText(QString("%1 x %2").arg(originImageSize_.width()).arg(originImageSize_.height()));
     ui.resultSizeLabel->setText(QString("%1 x %2").arg(resultImageSize_.width()).arg(resultImageSize_.height()));
 }
 
-void MainWidget::updateRangeSliderUi()
+void MainWidget::updateRelatedRangeUi()
 {
     ui.rangeSlider->setRange(0, currentImageSize_.width());
     ui.rangeSlider->setLowValue(cropRangeLow_);
@@ -378,7 +378,7 @@ void MainWidget::updateRangeSliderUi()
     ui.resetRangeButton->setEnabled(currentImageSize_.width() != 0);
 }
 
-void MainWidget::updateSliderUi()
+void MainWidget::updateRalatedValueUi()
 {
     size_t cropRange = cropRangeHigh_ - cropRangeLow_;
 
@@ -421,9 +421,9 @@ void MainWidget::updateProgressBarAndButtonUi()
 void MainWidget::updateAllUi()
 {
     updateFileInfoUi();
-    updateImageSizeUi();
-    updateRangeSliderUi();
-    updateSliderUi();
+    updateImageSizeHintUi();
+    updateRelatedRangeUi();
+    updateRalatedValueUi();
     updateProgressBarAndButtonUi();
 }
 
