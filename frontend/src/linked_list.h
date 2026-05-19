@@ -65,8 +65,14 @@ public:
 
     bool empty() const { return length_ == 0; }
 
+    const _NodeTp* head() const
+    { return head_; }
+
     _NodeTp* head()
     { return head_; }
+
+    const _NodeTp* current() const
+    { return current_; }
 
     _NodeTp* current()
     { return current_; }
