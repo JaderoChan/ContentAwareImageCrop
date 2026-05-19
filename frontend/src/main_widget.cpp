@@ -130,12 +130,20 @@ void MainWidget::anticlockwiseImage()
 
 void MainWidget::horizontalFlipImage()
 {
+#if QT_DEPRECATED_SINCE(6, 13)
+    addNewImage(currentImage_.flipped(Qt::Horizontal));
+#else
     addNewImage(currentImage_.mirrored(true, false));
+#endif
 }
 
 void MainWidget::verticalFlipImage()
 {
+#if QT_DEPRECATED_SINCE(6, 13)
+    addNewImage(currentImage_.flipped(Qt::Vertical));
+#else
     addNewImage(currentImage_.mirrored(false, true));
+#endif
 }
 
 bool MainWidget::undo()
