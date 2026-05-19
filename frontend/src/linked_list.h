@@ -90,6 +90,7 @@ public:
         else if (!head_)
         {
             head_ = new _NodeTp(std::forward<U>(value));
+            current_ = head_;
             length_++;
         }
     }
@@ -113,6 +114,7 @@ public:
         else if (!head_)
         {
             head_ = new _NodeTp(std::forward<U>(value));
+            current_ = head_;
             length_++;
         }
     }
