@@ -11,6 +11,17 @@
 #include <config.h>
 #include "strict_int_validator.h"
 
+void popupMessageBox(
+    QWidget* parent, const QString& title, const QString& text,
+    const QString& buttonText, QMessageBox::ButtonRole buttonRole = QMessageBox::AcceptRole)
+{
+    QMessageBox msgBox(parent);
+    msgBox.setWindowTitle(text);
+    msgBox.setText(text);
+    msgBox.addButton(buttonText, buttonRole);
+    msgBox.exec();
+}
+
 MainWidget::MainWidget(QWidget* parent)
     : TrWidget(parent)
 {
@@ -61,7 +72,7 @@ bool MainWidget::importImage(bool showMessageBoxOnError)
     if (filename.isEmpty())
     {
         if (showMessageBoxOnError)
-            QMessageBox::warning(this, EASYTR("Warning"), EASYTR("No files are open."), EASYTR("Ok"));
+            popupMessageBox(this, EASYTR("Warning"), EASYTR("No files are open."), EASYTR("Ok"));
         return false;
     }
 
@@ -70,7 +81,7 @@ bool MainWidget::importImage(bool showMessageBoxOnError)
     if (!importImage(filename))
     {
         if (showMessageBoxOnError)
-            QMessageBox::warning(this, EASYTR("Warning"), EASYTR("Failed to open image file."), EASYTR("Ok"));
+            popupMessageBox(this, EASYTR("Warning"), EASYTR("Failed to open image file."), EASYTR("Ok"));
         return false;
     }
 
@@ -86,7 +97,7 @@ bool MainWidget::exportImage(bool showMessageBoxOnError)
     if (filename.isEmpty())
     {
         if (showMessageBoxOnError)
-            QMessageBox::warning(this, EASYTR("Warning"), EASYTR("No files are save."), EASYTR("Ok"));
+            popupMessageBox(this, EASYTR("Warning"), EASYTR("No files are save."), EASYTR("Ok"));
         return false;
     }
 
@@ -95,7 +106,7 @@ bool MainWidget::exportImage(bool showMessageBoxOnError)
     if (!exportImage(filename))
     {
         if (showMessageBoxOnError)
-            QMessageBox::warning(this, EASYTR("Warning"), EASYTR("Failed to save the image file."), EASYTR("Ok"));
+            popupMessageBox(this, EASYTR("Warning"), EASYTR("Failed to save the image file."), EASYTR("Ok"));
         return false;
     }
 
