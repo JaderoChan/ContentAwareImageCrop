@@ -1,4 +1,5 @@
 #include <qapplication.h>
+#include <qimagereader.h>
 
 #include <easy_translate.hpp>
 
@@ -12,6 +13,7 @@ int main(int argc, char* argv[])
 {
     // 设置程序全局属性
     QApplication a(argc, argv);
+    QImageReader::setAllocationLimit(QIMAGE_ALLOCATION_LIMIT);
     a.setOrganizationDomain(APP_ORGANIZATION_DOMAIN);
     a.setOrganizationName(APP_ORGANIZATION);
     a.setApplicationName(APP_TITLE);
