@@ -10,7 +10,7 @@ enum Language : unsigned char
 
 QString getLanguageStringId(Language lang);
 
-// 如果应用程序不支持当前系统语言则返回 `LANG_EN`。
+// 如果应用程序不支持当前系统语言则返回 LANG_EN。
 Language getCurrentSystemLang();
 
 bool setLanguage(Language lang);
