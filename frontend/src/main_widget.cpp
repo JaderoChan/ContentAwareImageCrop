@@ -130,7 +130,7 @@ void MainWidget::anticlockwiseImage()
 
 void MainWidget::horizontalFlipImage()
 {
-#if (QT_VERSION > QT_VERSION_CHECK(6, 13, 0))
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 13, 0))
     addNewImage(currentImage_.flipped(Qt::Horizontal));
 #else
     addNewImage(currentImage_.mirrored(true, false));
@@ -139,7 +139,7 @@ void MainWidget::horizontalFlipImage()
 
 void MainWidget::verticalFlipImage()
 {
-#if (QT_VERSION > QT_VERSION_CHECK(6, 13, 0))
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 13, 0))
     addNewImage(currentImage_.flipped(Qt::Vertical));
 #else
     addNewImage(currentImage_.mirrored(false, true));
