@@ -42,16 +42,18 @@ MainWidget::MainWidget(QWidget* parent)
     ui.graphicsView->viewport()->installEventFilter(this);
 
     // Set shortcut
-    ui.clockwiseButton->setShortcut(QKeySequence(QKeyCombination(Qt::Key_BraceRight)));
-    ui.anticlockwiseButton->setShortcut(QKeySequence(QKeyCombination(Qt::Key_BraceLeft)));
+    ui.clockwiseButton->setShortcut(QKeySequence(QKeyCombination(Qt::Key_BracketRight)));
+    ui.anticlockwiseButton->setShortcut(QKeySequence(QKeyCombination( Qt::Key_BracketLeft)));
     ui.undoButton->setShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Z)));
     ui.redoButton->setShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Y)));
 
-    QShortcut(QKeySequence(QKeyCombination(Qt::Key_Up)), this, [this]() { setCropValue(cropValue_ + 1); });
-    QShortcut(QKeySequence(QKeyCombination(Qt::Key_Down)), this, [this]() { setCropValue(cropValue_ - 1); });
-    QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Up)), this, [this]()
+    QShortcut* addOne = new QShortcut(QKeySequence(QKeyCombination(Qt::Key_Up)), this, [this]()
+    { setCropValue(cropValue_ + 1); });
+    QShortcut* decreaseOne = new QShortcut(QKeySequence(QKeyCombination(Qt::Key_Down)), this, [this]()
+    { setCropValue(cropValue_ - 1); });
+    QShortcut* addTen = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Up)), this, [this]()
     { setCropValue((cropRangeHigh_ - cropRangeLow_ - cropValue_) < 10 ? cropRangeHigh_ : (cropValue_ + 10)); });
-    QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Down)), this, [this]()
+    QShortcut* decreaseTen = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Down)), this, [this]()
     { setCropValue(cropValue_ < 10 ? 0 : (cropValue_ - 10)); });
 
     // Connects
