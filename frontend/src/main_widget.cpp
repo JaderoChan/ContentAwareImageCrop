@@ -14,6 +14,8 @@
 
 #include "strict_int_validator.h"
 
+// TODO: No hard coding value.
+// 裁切范围提示线颜色。
 constexpr QColor RANGE_HINT_LINE_COLOR(0, 102, 255);
 
 void popupMessageBox(
@@ -68,6 +70,12 @@ MainWidget::MainWidget(QWidget* parent)
     ui.undoButton->setShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Z)));
     ui.redoButton->setShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Y)));
 
+    // TODO: No hard coding value.
+    QShortcut* importImg = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_O)), this, [this]()
+    { importImage(true); });
+    // TODO: No hard coding value.
+    QShortcut* exportImg = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_E)), this, [this]()
+    { exportImage(true); });
     QShortcut* addOne = new QShortcut(QKeySequence(QKeyCombination(Qt::Key_Up)), this, [this]()
     { setCropValue(cropValue_ + 1); });
     QShortcut* decreaseOne = new QShortcut(QKeySequence(QKeyCombination(Qt::Key_Down)), this, [this]()
@@ -105,7 +113,7 @@ MainWidget::MainWidget(QWidget* parent)
 
     connect(ui.cropButton, &QPushButton::clicked, this, &MainWidget::startCrop);
 
-    // TODO: Hard coding is not allowed! Show message box when error occured.
+    // TODO: No hard coding value.
     connect(ui.exportButton, &QPushButton::clicked, this, [this]() { exportImage(true); });
 
     // Update UI
