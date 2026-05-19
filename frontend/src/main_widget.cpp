@@ -41,6 +41,12 @@ MainWidget::MainWidget(QWidget* parent)
     ui.graphicsView->viewport()->setAcceptDrops(true);
     ui.graphicsView->viewport()->installEventFilter(this);
 
+    // Set shortcut
+    ui.clockwiseButton->setShortcut(QKeySequence(QKeyCombination(Qt::Key_BraceRight)));
+    ui.anticlockwiseButton->setShortcut(QKeySequence(QKeyCombination(Qt::Key_BraceLeft)));
+    ui.undoButton->setShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Z)));
+    ui.redoButton->setShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Y)));
+
     // Connects
     connect(ui.clockwiseButton, &QPushButton::clicked, this, &MainWidget::clockwiseImage);
     connect(ui.anticlockwiseButton, &QPushButton::clicked, this, &MainWidget::anticlockwiseImage);
@@ -183,12 +189,12 @@ bool MainWidget::redo()
 
 void MainWidget::updateText()
 {
-    ui.clockwiseButton->setToolTip(EASYTR("Rotate 90 degrees clockwise"));
-    ui.anticlockwiseButton->setToolTip(EASYTR("Rotate 90 degrees anticlockwise"));
+    ui.clockwiseButton->setToolTip(EASYTR("Rotate 90 degrees clockwise (])"));
+    ui.anticlockwiseButton->setToolTip(EASYTR("Rotate 90 degrees anticlockwise ([)"));
     ui.horFlipButton->setToolTip(EASYTR("Horizontal flip"));
     ui.verFlipButton->setToolTip(EASYTR("Vertical flip"));
-    ui.undoButton->setToolTip(EASYTR("Undo"));
-    ui.redoButton->setToolTip(EASYTR("Redo"));
+    ui.undoButton->setToolTip(EASYTR("Undo (Ctrl + Z)"));
+    ui.redoButton->setToolTip(EASYTR("Redo (Ctrl + Y)"));
     ui.differentButton->setToolTip(EASYTR("Compared with the original image"));
 }
 
