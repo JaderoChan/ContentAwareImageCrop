@@ -72,6 +72,8 @@ protected:
     void onOneCropped(const QImage& image, size_t progress);
     void onWorkFinished(const QImage& image);
 
+    void onCropButtonClicked();
+
 private:
     struct RecordStep
     {

@@ -94,9 +94,9 @@ MainWidget::MainWidget(QWidget* parent)
     { setCropValue((cropRangeHigh() - cropRangeLow() - cropValue()) < 10 ? cropRangeHigh() : (cropValue() + 10)); });
     QShortcut* decreaseTen = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Down)), this, [this]()
     { setCropValue(cropValue() < 10 ? 0 : (cropValue() - 10)); });
-    QShortcut* crop = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Enter)), this, [this]()
-    { startCrop(true); });
-    QShortcut* makeEnergyImage = new QShortcut(QKeySequence(QKeyCombination(Qt::SHIFT, Qt::Key_Enter)), this, [this]()
+    QShortcut* crop = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Return)),
+        this, &MainWidget::onCropButtonClicked);
+    QShortcut* makeEnergyImage = new QShortcut(QKeySequence(QKeyCombination(Qt::SHIFT, Qt::Key_Return)), this, [this]()
     { startMakeEnergyImage(); });
 
     // Connects
@@ -125,8 +125,7 @@ MainWidget::MainWidget(QWidget* parent)
     connect(ui.valueLineEdit, &QLineEdit::textEdited, this, [this](const QString& value)
     { setCropValue(value.toUInt()); });
 
-    connect(ui.cropButton, &QPushButton::clicked, this, [this]()
-    { isWorking_ ? worker_.stopWork() : startCrop(true); });
+    connect(ui.cropButton, &QPushButton::clicked, this, &MainWidget::onCropButtonClicked);
     connect(ui.makeEnergyImageButton, &QPushButton::clicked, this, &MainWidget::startMakeEnergyImage);
 
     connect(ui.differentButton, &QPushButton::pressed, this, [this]()
@@ -268,6 +267,9 @@ static QImage composeCropResult(const QImage& left, const QImage& middle, const 
 
 void MainWidget::startCrop(bool highlightLowEnergyLine)
 {
+    if (isWorking_)
+        return;
+
     QImage fullImage = currentImage();
     int low = static_cast<int>(cropRangeLow());
     int high = static_cast<int>(cropRangeHigh());
@@ -301,6 +303,9 @@ void MainWidget::startCrop(bool highlightLowEnergyLine)
 
 void MainWidget::startMakeEnergyImage()
 {
+    if (isWorking_)
+        return;
+
     isWorking_ = true;
     updateAllUi();
     emit startMakeEnergyImageWork(currentImage());
@@ -451,6 +456,11 @@ void MainWidget::onWorkFinished(const QImage& image)
     // Enable other image operate and add result image.
     isWorking_ = false;
     addNewImage(composeCropResult(cropLeftPart_, image, cropRightPart_));
+}
+
+void MainWidget::onCropButtonClicked()
+{
+    isWorking_ ? worker_.stopWork() : startCrop(true);
 }
 
 void MainWidget::resizeEvent(QResizeEvent* event)
