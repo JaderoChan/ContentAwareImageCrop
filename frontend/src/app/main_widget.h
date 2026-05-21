@@ -118,6 +118,8 @@ private:
     // 将图像计入 Step Record，更新与当前图像相关的变量，更新图像显示和 UI 显示。
     void addNewImage(const QImage& image);
 
+    void toggleToOriginImageDisplay(bool enable);
+
     bool importImage(const QString& filename);
     bool exportImage(const QString& filename);
 
