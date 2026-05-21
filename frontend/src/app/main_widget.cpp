@@ -150,6 +150,7 @@ MainWidget::MainWidget(const QString& filename, QWidget* parent)
 
 MainWidget::~MainWidget()
 {
+    worker_.stopWork();
     workerThread_.quit();
     workerThread_.wait();
 }
