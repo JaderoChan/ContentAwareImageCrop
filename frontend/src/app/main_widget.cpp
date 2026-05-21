@@ -163,7 +163,7 @@ bool MainWidget::importImage(bool showMessageBoxOnError)
     if (filename.isEmpty())
     {
         if (showMessageBoxOnError)
-            popupInformation(EASYTR("Information"), EASYTR("No files are open."), EASYTR("Ok"), this);
+            popupInformation(EASYTR("Warning"), EASYTR("No files are open."), EASYTR("Ok"), this);
         return false;
     }
 
@@ -188,7 +188,7 @@ bool MainWidget::exportImage(bool showMessageBoxOnError)
     if (filename.isEmpty())
     {
         if (showMessageBoxOnError)
-            popupInformation(EASYTR("Information"), EASYTR("No files are save."), EASYTR("Ok"), this);
+            popupInformation(EASYTR("Warning"), EASYTR("No files are save."), EASYTR("Ok"), this);
         return false;
     }
 
