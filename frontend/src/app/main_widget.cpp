@@ -70,7 +70,7 @@ MainWidget::MainWidget(QWidget* parent)
     connect(this, &MainWidget::startCropWork, &worker_, &CropImageWorker::startCropWork);
     connect(this, &MainWidget::startMakeEnergyImageWork, &worker_, &CropImageWorker::startMakeEnergImageWork);
     connect(this, &MainWidget::stopWork, &worker_, &CropImageWorker::stopWork);
-    connect(&worker_, &CropImageWorker::oneCropped, this, &MainWidget::onOneCropped);
+    connect(&worker_, &CropImageWorker::cropUpdated, this, &MainWidget::onOneCropped);
     connect(&worker_, &CropImageWorker::workFinished, this, &MainWidget::onWorkFinished);
     workerThread_.start();
 
@@ -280,6 +280,7 @@ void MainWidget::startCrop(bool highlightLowEnergyLine)
     parameters.cropValue = cropValue();
 
     // TODO: add application configure.
+    // parameters.cropUpdateT
     // parameters.limitImageSize
     // parameters.highlightLineColor
     // parameters.isLimitImageSize

@@ -47,9 +47,11 @@ void CropImageWorker::startCropWork(CropImageParameters parameters)
 {
     shouldClose_.store(false);
 
-    const auto& [qimg, cropValue, limitSize, highlightColor, isLimit, isHighlight, isAntialiasing] = parameters;
+    const auto&
+    [qimg, cropValue, cropUpdateT, limitSize, highlightColor, isLimit, isHighlight, isAntialiasing] = parameters;
 
     Image img = converter::toImage(qimg);
+    size_t counter = 0;
     for (size_t i = 0; i < parameters.cropValue && !shouldClose_; ++i)
     {
         std::vector<IPos> line;
@@ -64,12 +66,14 @@ void CropImageWorker::startCropWork(CropImageParameters parameters)
             line = fetchMinimumEnergyLine(img);
         }
 
-        if (isHighlight)
+        if (isHighlight && counter == cropUpdateT) /* Reduce the interface update frequency to prevent UI lag. */
         {
             Image highlighted = highlightLine(img, line, converter::toRgbColor(highlightColor), isAntialiasing);
-            emit oneCropped(converter::toQImage(highlighted), i + 1);
+            emit cropUpdated(converter::toQImage(highlighted), i + 1);
         }
 
+        counter++;
+        counter = (counter > cropUpdateT ? 0 : counter);
         img = removeLine(img, line);
     }
 

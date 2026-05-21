@@ -12,6 +12,8 @@ struct CropImageParameters
     QImage image;
     // 裁切量。
     size_t cropValue{0};
+    // 画面更新周期。
+    size_t cropUpdateT{0};  // 0 为每次裁切后都更新画面。
     // 图像尺寸限制。（仅在 isLimitImageSize 为真时可用）
     QSize limitImageSize{640, 640};
     // 裁切线的高亮颜色。
@@ -36,8 +38,7 @@ public:
     void stopWork();
 
 signals:
-    // 每裁切线一次进行反馈。
-    void oneCropped(const QImage& image, size_t progress);
+    void cropUpdated(const QImage& image, size_t progress);
     void workFinished(const QImage& image);
 
 private:
