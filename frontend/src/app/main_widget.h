@@ -33,6 +33,7 @@ public:
 
     // 开始内容感知图像裁切。
     void startCrop(bool highlightLowEnergyLine);
+    void startMakeEnergyImage();
 
     void clockwiseImage();
     void anticlockwiseImage();
@@ -57,7 +58,8 @@ public:
     QSize resultImageSize() const { return QSize(currentImage().width() - cropValue(), currentImage().height()); }
 
 signals:
-    void startWork(CropImageParameters parameters);
+    void startCropWork(CropImageParameters parameters);
+    void startMakeEnergyImageWork(QImage image);
     void stopWork();
 
 protected:
@@ -66,7 +68,7 @@ protected:
     bool eventFilter(QObject* obj, QEvent* event) override;
 
     void onOneCropped(const QImage& image, size_t progress);
-    void onCropFinished(const QImage& image);
+    void onWorkFinished(const QImage& image);
 
 private:
     struct RecordStep
@@ -133,7 +135,7 @@ private:
     size_t maxRecordSteps_ = DEFAULT_MAX_RECORD_STEP;
     LinkedList<RecordStep> records_;
 
-    bool isCropping_ = false;
+    bool isWorking_ = false;
     // 裁切时暂存的左侧与右侧图像（裁切范围以外的部分）。
     QImage cropLeftPart_;
     QImage cropRightPart_;

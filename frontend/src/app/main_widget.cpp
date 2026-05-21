@@ -67,10 +67,11 @@ MainWidget::MainWidget(QWidget* parent)
 
     // 初始化工作线程
     worker_.moveToThread(&workerThread_);
-    connect(this, &MainWidget::startWork, &worker_, &CropImageWorker::startWork);
+    connect(this, &MainWidget::startCropWork, &worker_, &CropImageWorker::startCropWork);
+    connect(this, &MainWidget::startMakeEnergyImageWork, &worker_, &CropImageWorker::startMakeEnergImageWork);
     connect(this, &MainWidget::stopWork, &worker_, &CropImageWorker::stopWork);
     connect(&worker_, &CropImageWorker::oneCropped, this, &MainWidget::onOneCropped);
-    connect(&worker_, &CropImageWorker::cropFinished, this, &MainWidget::onCropFinished);
+    connect(&worker_, &CropImageWorker::workFinished, this, &MainWidget::onWorkFinished);
     workerThread_.start();
 
     // Set shortcut
@@ -121,6 +122,7 @@ MainWidget::MainWidget(QWidget* parent)
     { setCropValue(value.toUInt()); });
 
     connect(ui.cropButton, &QPushButton::clicked, this, &MainWidget::startCrop);
+    connect(ui.makeEnergyImageButton, &QPushButton::clicked, this, &MainWidget::startMakeEnergyImage);
 
     connect(ui.differentButton, &QPushButton::pressed, this, [this]()
     {
@@ -290,13 +292,20 @@ void MainWidget::startCrop(bool highlightLowEnergyLine)
     // parameters.isAntialiasingLine
 
     // Disable other image operate and update progress.
-    isCropping_ = true;
+    isWorking_ = true;
     ui.progressBar->setMinimum(0);
     ui.progressBar->setMaximum(cropValue());
     ui.progressBar->setValue(0);
     updateAllUi();
 
-    emit startWork(parameters);
+    emit startCropWork(parameters);
+}
+
+void MainWidget::startMakeEnergyImage()
+{
+    isWorking_ = true;
+    updateAllUi();
+    emit startMakeEnergyImageWork(currentImage());
 }
 
 void MainWidget::clockwiseImage()
@@ -415,10 +424,10 @@ void MainWidget::onOneCropped(const QImage& image, size_t progress)
     updateDisplayedImage(composeCropResult(cropLeftPart_, image, cropRightPart_));
 }
 
-void MainWidget::onCropFinished(const QImage& image)
+void MainWidget::onWorkFinished(const QImage& image)
 {
     // Enable other image operate and add result image.
-    isCropping_ = false;
+    isWorking_ = false;
     addNewImage(composeCropResult(cropLeftPart_, image, cropRightPart_));
 }
 
@@ -452,7 +461,7 @@ void MainWidget::updateDisplayedImage(const QImage& image)
 
 void MainWidget::updateRangeHintLines()
 {
-    bool visible = !currentImage().isNull() && !isCropping_;
+    bool visible = !currentImage().isNull() && !isWorking_;
     dimOverlayLeft_->setVisible(visible);
     dimOverlayRight_->setVisible(visible);
     rangeHintLineLow_->setVisible(visible);
@@ -542,7 +551,7 @@ void MainWidget::updateValueRalatedUi()
 
 void MainWidget::updateUndoRedoUi()
 {
-    bool condition = (!isCropping_ && records_.current());
+    bool condition = (!isWorking_ && records_.current());
     ui.undoButton->setEnabled(condition && records_.current()->hasPrevious());
     ui.redoButton->setEnabled(condition && records_.current()->hasNext());
 }
@@ -558,12 +567,13 @@ void MainWidget::updateProgressBarAndButtonUi()
     };
 
     for (const auto& btn : opButtons)
-        btn->setEnabled(!isCropping_ && !currentImageSize().isEmpty());
-    ui.differentButton->setEnabled(!isCropping_ && getCurrent());
-    ui.cropButton->setEnabled(!isCropping_ && records_.current() && cropValue() != 0);
+        btn->setEnabled(!isWorking_ && !currentImageSize().isEmpty());
+    ui.differentButton->setEnabled(!isWorking_ && getCurrent());
+    ui.cropButton->setEnabled(!isWorking_ && records_.current() && cropValue() != 0);
+    ui.makeEnergyImageButton->setEnabled(!isWorking_ && records_.current());
     updateUndoRedoUi();
 
-    ui.progressBar->setVisible(isCropping_);
+    ui.progressBar->setVisible(isWorking_);
 }
 
 void MainWidget::updateAllUi()

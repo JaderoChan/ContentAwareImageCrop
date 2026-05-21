@@ -31,13 +31,14 @@ class CropImageWorker : public QObject
 public:
     explicit CropImageWorker(QObject* parent = nullptr);
 
-    void startWork(CropImageParameters parameters);
+    void startCropWork(CropImageParameters parameters);
+    void startMakeEnergImageWork(QImage image);
     void stopWork();
 
 signals:
     // 每裁切线一次进行反馈。
     void oneCropped(const QImage& image, size_t progress);
-    void cropFinished(const QImage& image);
+    void workFinished(const QImage& image);
 
 private:
     std::atomic<bool> shouldClose_{false};

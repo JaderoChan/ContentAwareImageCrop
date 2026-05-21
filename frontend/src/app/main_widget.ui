@@ -100,7 +100,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="../resources/app.qrc">:/icons/right_arrow.png</pixmap>
+         <pixmap resource="../../resources/app.qrc">:/icons/right_arrow.png</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -207,7 +207,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../resources/app.qrc">
+            <iconset resource="../../resources/app.qrc">
              <normaloff>:/icons/clockwise.png</normaloff>:/icons/clockwise.png</iconset>
            </property>
            <property name="iconSize">
@@ -239,7 +239,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../resources/app.qrc">
+            <iconset resource="../../resources/app.qrc">
              <normaloff>:/icons/anticlockwise.png</normaloff>:/icons/anticlockwise.png</iconset>
            </property>
            <property name="iconSize">
@@ -271,7 +271,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../resources/app.qrc">
+            <iconset resource="../../resources/app.qrc">
              <normaloff>:/icons/horizontal_flip.png</normaloff>:/icons/horizontal_flip.png</iconset>
            </property>
            <property name="iconSize">
@@ -303,7 +303,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../resources/app.qrc">
+            <iconset resource="../../resources/app.qrc">
              <normaloff>:/icons/vertical_flip.png</normaloff>:/icons/vertical_flip.png</iconset>
            </property>
            <property name="iconSize">
@@ -444,7 +444,7 @@
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset resource="../resources/app.qrc">
+                  <iconset resource="../../resources/app.qrc">
                    <normaloff>:/icons/reset.png</normaloff>:/icons/reset.png</iconset>
                  </property>
                  <property name="iconSize">
@@ -566,7 +566,7 @@
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset resource="../resources/app.qrc">
+                  <iconset resource="../../resources/app.qrc">
                    <normaloff>:/icons/reset.png</normaloff>:/icons/reset.png</iconset>
                  </property>
                  <property name="iconSize">
@@ -675,7 +675,7 @@
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset resource="../resources/app.qrc">
+                  <iconset resource="../../resources/app.qrc">
                    <normaloff>:/icons/undo.png</normaloff>:/icons/undo.png</iconset>
                  </property>
                  <property name="iconSize">
@@ -707,7 +707,7 @@
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset resource="../resources/app.qrc">
+                  <iconset resource="../../resources/app.qrc">
                    <normaloff>:/icons/redo.png</normaloff>:/icons/redo.png</iconset>
                  </property>
                  <property name="iconSize">
@@ -739,7 +739,7 @@
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset resource="../resources/app.qrc">
+                  <iconset resource="../../resources/app.qrc">
                    <normaloff>:/icons/view_split.png</normaloff>:/icons/view_split.png</iconset>
                  </property>
                  <property name="iconSize">
@@ -780,7 +780,7 @@
                   <item>
                    <widget class="QProgressBar" name="progressBar">
                     <property name="value">
-                     <number>24</number>
+                     <number>100</number>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignCenter</set>
@@ -800,6 +800,13 @@
                  </property>
                  <property name="text">
                   <string>Crop</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="makeEnergyImageButton">
+                 <property name="text">
+                  <string>Make Energy Image</string>
                  </property>
                 </widget>
                </item>
@@ -839,7 +846,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../resources/app.qrc"/>
+  <include location="../../resources/app.qrc"/>
  </resources>
  <connections/>
 </ui>

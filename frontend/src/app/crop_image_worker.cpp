@@ -23,8 +23,8 @@ static Image toImage(const QImage& qimg)
     QImage src = (qimg.format() == QImage::Format_RGB888) ? qimg : qimg.convertToFormat(QImage::Format_RGB888);
     Image img(src.height(), src.width(), channels);
     // Copy each scanline individually to strip any row-alignment padding Qt may add.
-    for (int r = 0; r < src.height(); ++r)
-        std::memcpy(img.data() + r * src.width() * channels, src.constScanLine(r), src.width() * channels);
+    for (int row = 0; row < src.height(); ++row)
+        std::memcpy(img.data() + row * src.width() * channels, src.constScanLine(row), src.width() * channels);
     return img;
 }
 
@@ -43,7 +43,7 @@ static RgbColor toRgbColor(const QColor& color)
 
 } // namespace converter
 
-void CropImageWorker::startWork(CropImageParameters parameters)
+void CropImageWorker::startCropWork(CropImageParameters parameters)
 {
     shouldClose_.store(false);
 
@@ -73,7 +73,18 @@ void CropImageWorker::startWork(CropImageParameters parameters)
         img = removeLine(img, line);
     }
 
-    emit cropFinished(converter::toQImage(img));
+    emit workFinished(converter::toQImage(img));
+}
+
+void CropImageWorker::startMakeEnergImageWork(QImage image)
+{
+    Image img = converter::toImage(image);
+    auto energyMat = createEnergyMat(img);
+    energyMat = normalizeEnergyMat(energyMat);
+    img = energyMatToGrayImage(energyMat);
+
+    QImage result = QImage(img.data(), img.cols, img.rows, img.cols, QImage::Format_Grayscale8).copy();
+    emit workFinished(result);
 }
 
 void CropImageWorker::stopWork()
