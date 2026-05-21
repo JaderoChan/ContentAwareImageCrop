@@ -15,6 +15,10 @@
 
 #include <common/strict_int_validator.h>
 
+// TODO: No hard coding value.
+// 裁切范围提示线颜色。
+constexpr QColor RANGE_HINT_LINE_COLOR(0, 102, 255);
+
 void popupMessageBox(
     QMessageBox::Icon icon, const QString& title, const QString& text,
     const QString& buttonText, QMessageBox::ButtonRole buttonRole = QMessageBox::AcceptRole,
