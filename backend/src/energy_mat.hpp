@@ -8,7 +8,8 @@
  * @param img 三通道图像。
  * @return 图像指定位置的能量值，其值域为 `[0.0, 1.0]`，能量值越高，能量值越接近 `1.0`。
  */
-double computePointEnergy(const Image& img, int row, int col,
+double computePointEnergy(
+    const Image& img, int row, int col,
     double rWeight = 1.0, double gWeight = 1.0, double bWeight = 1.0);
 
 /**

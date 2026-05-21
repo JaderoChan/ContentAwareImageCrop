@@ -6,7 +6,8 @@
 #include "color_similarity.hpp"
 #include "utilities.hpp"
 
-double computePointEnergy(const Image& img, int row, int col,
+double computePointEnergy(
+    const Image& img, int row, int col,
     double rWeight, double gWeight, double bWeight)
 {
     int validPoint = 0;
