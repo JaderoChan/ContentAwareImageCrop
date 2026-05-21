@@ -125,7 +125,8 @@ MainWidget::MainWidget(QWidget* parent)
     connect(ui.valueLineEdit, &QLineEdit::textEdited, this, [this](const QString& value)
     { setCropValue(value.toUInt()); });
 
-    connect(ui.cropButton, &QPushButton::clicked, this, &MainWidget::startCrop);
+    connect(ui.cropButton, &QPushButton::clicked, this, [this]()
+    { isWorking_ ? worker_.stopWork() : startCrop(true); });
     connect(ui.makeEnergyImageButton, &QPushButton::clicked, this, &MainWidget::startMakeEnergyImage);
 
     connect(ui.differentButton, &QPushButton::pressed, this, [this]()
@@ -590,7 +591,8 @@ void MainWidget::updateProgressBarAndButtonUi()
     for (const auto& btn : opButtons)
         btn->setEnabled(!isWorking_ && !currentImageSize().isEmpty());
     ui.differentButton->setEnabled(!isWorking_ && getCurrent());
-    ui.cropButton->setEnabled(!isWorking_ && records_.current() && cropValue() != 0);
+    ui.cropButton->setText(isWorking_ ? EASYTR("Stop") : EASYTR("Crop"));
+    ui.cropButton->setEnabled(isWorking_ ? true : (records_.current() && cropValue() != 0));
     ui.makeEnergyImageButton->setEnabled(!isWorking_ && records_.current());
     updateUndoRedoUi();
 
