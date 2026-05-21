@@ -380,7 +380,7 @@ void MainWidget::updateText()
     ui.makeEnergyImageButton->setText(EASYTR("Make Energy Image"));
     ui.makeEnergyImageButton->setToolTip(EASYTR("Shift + Enter"));
     ui.exportButton->setText(EASYTR("Export"));
-    ui.exportButton->setText(EASYTR("Ctrl + E"));
+    ui.exportButton->setToolTip(EASYTR("Ctrl + E"));
 }
 
 void MainWidget::keyPressEvent(QKeyEvent* event)
