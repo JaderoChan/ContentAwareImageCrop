@@ -7,6 +7,7 @@
 #include <qlist.h>
 #include <qmessagebox.h>
 #include <qmimedata.h>
+#include <qpainter.h>
 #include <qpen.h>
 #include <qshortcut.h>
 #include <qtransform.h>
@@ -64,6 +65,14 @@ MainWidget::MainWidget(QWidget* parent)
     ui.graphicsView->viewport()->setAcceptDrops(true);
     ui.graphicsView->viewport()->installEventFilter(this);
 
+    // 初始化工作线程
+    worker_.moveToThread(&workerThread_);
+    connect(this, &MainWidget::startWork, &worker_, &CropImageWorker::startWork);
+    connect(this, &MainWidget::stopWork, &worker_, &CropImageWorker::stopWork);
+    connect(&worker_, &CropImageWorker::oneCropped, this, &MainWidget::onOneCropped);
+    connect(&worker_, &CropImageWorker::cropFinished, this, &MainWidget::onCropFinished);
+    workerThread_.start();
+
     // Set shortcut
     ui.clockwiseButton->setShortcut(QKeySequence(QKeyCombination(Qt::Key_BracketRight)));
     ui.anticlockwiseButton->setShortcut(QKeySequence(QKeyCombination( Qt::Key_BracketLeft)));
@@ -113,6 +122,20 @@ MainWidget::MainWidget(QWidget* parent)
 
     connect(ui.cropButton, &QPushButton::clicked, this, &MainWidget::startCrop);
 
+    connect(ui.differentButton, &QPushButton::pressed, this, [this]()
+    {
+        updateDisplayedImage(originImage());
+        dimOverlayLeft_->setVisible(false);
+        dimOverlayRight_->setVisible(false);
+        rangeHintLineLow_->setVisible(false);
+        rangeHintLineHigh_->setVisible(false);
+    });
+    connect(ui.differentButton, &QPushButton::released, this, [this]()
+    {
+        updateDisplayedImage(currentImage());
+        updateRangeHintLines();
+    });
+
     // TODO: No hard coding value.
     connect(ui.exportButton, &QPushButton::clicked, this, [this]() { exportImage(true); });
 
@@ -126,6 +149,12 @@ MainWidget::MainWidget(const QString& filename, QWidget* parent)
 {
     importImage(filename);
     updateAllUi();
+}
+
+MainWidget::~MainWidget()
+{
+    workerThread_.quit();
+    workerThread_.wait();
 }
 
 bool MainWidget::importImage(bool showMessageBoxOnError)
@@ -210,14 +239,64 @@ bool MainWidget::setCropValue(size_t value)
 
     getCurrent()->cropValue = value;
 
+    ui.cropButton->setEnabled(cropValue() != 0);
     updateImageSizeHintUi();
     updateValueRalatedUi();
     return true;
 }
 
+static QImage composeCropResult(const QImage& left, const QImage& middle, const QImage& right)
+{
+    int totalWidth =
+        (left.isNull() ? 0 : left.width()) +
+        middle.width() +
+        (right.isNull() ? 0 : right.width());
+    QImage result(totalWidth, middle.height(), middle.format());
+
+    QPainter painter(&result);
+    int x = 0;
+    if (!left.isNull())
+    {
+        painter.drawImage(x, 0, left);
+        x += left.width();
+    }
+    painter.drawImage(x, 0, middle);
+    x += middle.width();
+    if (!right.isNull())
+        painter.drawImage(x, 0, right);
+    return result;
+}
+
 void MainWidget::startCrop(bool highlightLowEnergyLine)
 {
-    // TODO
+    QImage fullImage = currentImage();
+    int low = static_cast<int>(cropRangeLow());
+    int high = static_cast<int>(cropRangeHigh());
+    int h = fullImage.height();
+
+    cropLeftPart_ = low > 0 ? fullImage.copy(0, 0, low, h) : QImage();
+    cropRightPart_ = high < fullImage.width() ? fullImage.copy(high, 0, fullImage.width() - high, h) : QImage();
+    QImage croppedImage = fullImage.copy(low, 0, high - low, h);
+
+    CropImageParameters parameters;
+    parameters.image = croppedImage;
+    parameters.cropValue = cropValue();
+
+    // TODO: add application configure.
+    // parameters.limitImageSize
+    // parameters.highlightLineColor
+    // parameters.isLimitImageSize
+    // parameters.isHighlightLine
+    // parameters.isAntialiasingLine
+
+    // Disable other image operate and update progress.
+    isCropping_ = true;
+    ui.progressBar->setMinimum(0);
+    ui.progressBar->setMaximum(cropValue());
+    ui.progressBar->setValue(0);
+    updateAllUi();
+
+    emit startWork(parameters);
 }
 
 void MainWidget::clockwiseImage()
@@ -330,6 +409,19 @@ bool MainWidget::eventFilter(QObject* obj, QEvent* event)
     return TrWidget::eventFilter(obj, event);
 }
 
+void MainWidget::onOneCropped(const QImage& image, size_t progress)
+{
+    ui.progressBar->setValue(progress);
+    updateDisplayedImage(composeCropResult(cropLeftPart_, image, cropRightPart_));
+}
+
+void MainWidget::onCropFinished(const QImage& image)
+{
+    // Enable other image operate and add result image.
+    isCropping_ = false;
+    addNewImage(composeCropResult(cropLeftPart_, image, cropRightPart_));
+}
+
 void MainWidget::resizeEvent(QResizeEvent* event)
 {
     TrWidget::resizeEvent(event);
@@ -360,13 +452,13 @@ void MainWidget::updateDisplayedImage(const QImage& image)
 
 void MainWidget::updateRangeHintLines()
 {
-    bool hasImage = !currentImage().isNull();
-    dimOverlayLeft_->setVisible(hasImage);
-    dimOverlayRight_->setVisible(hasImage);
-    rangeHintLineLow_->setVisible(hasImage);
-    rangeHintLineHigh_->setVisible(hasImage);
+    bool visible = !currentImage().isNull() && !isCropping_;
+    dimOverlayLeft_->setVisible(visible);
+    dimOverlayRight_->setVisible(visible);
+    rangeHintLineLow_->setVisible(visible);
+    rangeHintLineHigh_->setVisible(visible);
 
-    if (hasImage)
+    if (visible)
     {
         double w = currentImageSize().width();
         double h = currentImageSize().height();
@@ -462,13 +554,13 @@ void MainWidget::updateProgressBarAndButtonUi()
         ui.anticlockwiseButton,
         ui.horFlipButton,
         ui.verFlipButton,
-        ui.differentButton,
         ui.exportButton
     };
 
     for (const auto& btn : opButtons)
-        btn->setEnabled(!isCropping_ && records_.current());
-    ui.cropButton->setEnabled(records_.current());
+        btn->setEnabled(!isCropping_ && !currentImageSize().isEmpty());
+    ui.differentButton->setEnabled(!isCropping_ && getCurrent());
+    ui.cropButton->setEnabled(!isCropping_ && records_.current() && cropValue() != 0);
     updateUndoRedoUi();
 
     ui.progressBar->setVisible(isCropping_);

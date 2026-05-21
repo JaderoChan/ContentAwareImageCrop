@@ -6,17 +6,22 @@
 #include <qsize.h>
 #include <qgraphicsscene.h>
 #include <qgraphicsitem.h>
+#include <qthread>
 
 #include <config.h>
 #include <trwidgets/trwidget.h>
 #include <common/linked_list.h>
+#include "crop_image_worker.h"
 #include "ui_main_widget.h"
 
 class MainWidget : public TrWidget
 {
+    Q_OBJECT
+
 public:
     explicit MainWidget(QWidget* parent = nullptr);
     explicit MainWidget(const QString& filename, QWidget* parent = nullptr);
+    ~MainWidget();
 
     bool importImage(bool showMessageBoxOnError);
     bool exportImage(bool showMessageBoxOnError);
@@ -51,10 +56,17 @@ public:
     QSize currentImageSize() const { return currentImage().isNull() ? QSize(0, 0) : currentImage().size(); }
     QSize resultImageSize() const { return QSize(currentImage().width() - cropValue(), currentImage().height()); }
 
+signals:
+    void startWork(CropImageParameters parameters);
+    void stopWork();
+
 protected:
     void updateText() override;
     void resizeEvent(QResizeEvent* event) override;
     bool eventFilter(QObject* obj, QEvent* event) override;
+
+    void onOneCropped(const QImage& image, size_t progress);
+    void onCropFinished(const QImage& image);
 
 private:
     struct RecordStep
@@ -122,6 +134,11 @@ private:
     LinkedList<RecordStep> records_;
 
     bool isCropping_ = false;
+    // 裁切时暂存的左侧与右侧图像（裁切范围以外的部分）。
+    QImage cropLeftPart_;
+    QImage cropRightPart_;
+    CropImageWorker worker_;
+    QThread workerThread_;
 
     QString lastOpenDirectory_;
 };
