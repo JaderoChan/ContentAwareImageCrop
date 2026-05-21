@@ -68,8 +68,7 @@ MainWidget::MainWidget(QWidget* parent)
     // 初始化工作线程
     worker_.moveToThread(&workerThread_);
     connect(this, &MainWidget::startCropWork, &worker_, &CropImageWorker::startCropWork);
-    connect(this, &MainWidget::startMakeEnergyImageWork, &worker_, &CropImageWorker::startMakeEnergImageWork);
-    connect(this, &MainWidget::stopWork, &worker_, &CropImageWorker::stopWork);
+    connect(this, &MainWidget::startMakeEnergyImageWork, &worker_, &CropImageWorker::startMakeEnergyImageWork);
     connect(&worker_, &CropImageWorker::cropUpdated, this, &MainWidget::onOneCropped);
     connect(&worker_, &CropImageWorker::workFinished, this, &MainWidget::onWorkFinished);
     workerThread_.start();
@@ -80,8 +79,6 @@ MainWidget::MainWidget(QWidget* parent)
     ui.undoButton->setShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Z)));
     ui.redoButton->setShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Y)));
     ui.exportButton->setShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_E)));
-    ui.cropButton->setShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Return)));
-    ui.makeEnergyImageButton->setShortcut(QKeySequence(QKeyCombination(Qt::SHIFT, Qt::Key_Return)));
 
     // TODO: No hard coding value.
     QShortcut* importImg = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_O)), this, [this]()
@@ -94,6 +91,10 @@ MainWidget::MainWidget(QWidget* parent)
     { setCropValue((cropRangeHigh() - cropRangeLow() - cropValue()) < 10 ? cropRangeHigh() : (cropValue() + 10)); });
     QShortcut* decreaseTen = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Down)), this, [this]()
     { setCropValue(cropValue() < 10 ? 0 : (cropValue() - 10)); });
+    QShortcut* crop = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Return)), this, [this]()
+    { onCropButtonClicked(); });
+    QShortcut* makeEnergyImage = new QShortcut(QKeySequence(QKeyCombination(Qt::SHIFT, Qt::Key_Return)), this, [this]()
+    { startMakeEnergyImage(); });
 
     // Connects
     connect(ui.clockwiseButton, &QPushButton::clicked, this, &MainWidget::clockwiseImage);
@@ -236,7 +237,7 @@ bool MainWidget::setCropValue(size_t value)
 
     getCurrent()->cropValue = value;
 
-    ui.cropButton->setEnabled(cropValue() != 0);
+    ui.cropButton->setEnabled(isWorking_ ? true : (records_.current() && cropValue() != 0));
     updateImageSizeHintUi();
     updateValueRalatedUi();
     return true;

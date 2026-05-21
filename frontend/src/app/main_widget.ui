@@ -780,7 +780,7 @@
                   <item>
                    <widget class="QProgressBar" name="progressBar">
                     <property name="value">
-                     <number>100</number>
+                     <number>0</number>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignCenter</set>

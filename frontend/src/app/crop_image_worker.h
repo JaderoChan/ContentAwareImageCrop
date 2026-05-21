@@ -34,7 +34,7 @@ public:
     explicit CropImageWorker(QObject* parent = nullptr);
 
     void startCropWork(CropImageParameters parameters);
-    void startMakeEnergImageWork(QImage image);
+    void startMakeEnergyImageWork(QImage image);
     void stopWork();
 
 signals:

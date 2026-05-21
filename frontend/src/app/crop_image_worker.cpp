@@ -80,7 +80,7 @@ void CropImageWorker::startCropWork(CropImageParameters parameters)
     emit workFinished(converter::toQImage(img));
 }
 
-void CropImageWorker::startMakeEnergImageWork(QImage image)
+void CropImageWorker::startMakeEnergyImageWork(QImage image)
 {
     Image img = converter::toImage(image);
     auto energyMat = createEnergyMat(img);

@@ -60,7 +60,6 @@ public:
 signals:
     void startCropWork(CropImageParameters parameters);
     void startMakeEnergyImageWork(QImage image);
-    void stopWork();
 
 protected:
     void updateText() override;
