@@ -28,6 +28,7 @@
     - [2. 配置与构建](#2-配置与构建)
     - [3. 构建测试程序（可选）](#3-构建测试程序可选)
   - [使用说明](#使用说明)
+  - [应用截图](#应用截图)
   - [项目结构](#项目结构)
   - [参考资料](#参考资料)
 
@@ -123,6 +124,16 @@ cmake --build build --config Release
 4. 点击「裁切」按钮开始处理，实时查看进度。
 5. 使用撤销 / 重做按钮对比不同步骤的结果。
 6. 导出裁切后的图像。
+
+---
+
+## 应用截图
+
+<details>
+    <summary>应用截图</summary>
+    <img src="./screenshot/sufer_origin.png" alt="sufer_origin">
+    <img src="./screenshot/sufer_cropped.png" alt="sufer_cropped">
+</details>
 
 ---
 

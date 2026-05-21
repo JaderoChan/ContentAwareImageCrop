@@ -28,6 +28,7 @@ A content-aware image cropping tool based on the **Seam Carving** algorithm. It 
     - [2. Configure and build](#2-configure-and-build)
     - [3. Build the test program (optional)](#3-build-the-test-program-optional)
   - [Usage](#usage)
+  - [Application screenshot](#application-screenshot)
   - [Project Structure](#project-structure)
   - [References](#references)
 
@@ -123,6 +124,16 @@ cmake --build build --config Release
 4. Click **Crop** to start processing and watch the real-time progress.
 5. Use the undo / redo buttons to compare results at different stages.
 6. Export the cropped image.
+
+---
+
+## Application screenshot
+
+<details>
+    <summary>Screenshot</summary>
+    <img src="./screenshot/sufer_origin.png" alt="sufer_origin">
+    <img src="./screenshot/sufer_cropped.png" alt="sufer_cropped">
+</details>
 
 ---
 
