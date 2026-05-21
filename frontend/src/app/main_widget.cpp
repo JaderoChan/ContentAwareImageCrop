@@ -79,13 +79,13 @@ MainWidget::MainWidget(QWidget* parent)
     ui.anticlockwiseButton->setShortcut(QKeySequence(QKeyCombination( Qt::Key_BracketLeft)));
     ui.undoButton->setShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Z)));
     ui.redoButton->setShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Y)));
+    ui.exportButton->setShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_E)));
+    ui.cropButton->setShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Return)));
+    ui.makeEnergyImageButton->setShortcut(QKeySequence(QKeyCombination(Qt::SHIFT, Qt::Key_Return)));
 
     // TODO: No hard coding value.
     QShortcut* importImg = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_O)), this, [this]()
     { importImage(true); });
-    // TODO: No hard coding value.
-    QShortcut* exportImg = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_E)), this, [this]()
-    { exportImage(true); });
     QShortcut* addOne = new QShortcut(QKeySequence(QKeyCombination(Qt::Key_Up)), this, [this]()
     { setCropValue(cropValue() + 1); });
     QShortcut* decreaseOne = new QShortcut(QKeySequence(QKeyCombination(Qt::Key_Down)), this, [this]()
@@ -94,10 +94,6 @@ MainWidget::MainWidget(QWidget* parent)
     { setCropValue((cropRangeHigh() - cropRangeLow() - cropValue()) < 10 ? cropRangeHigh() : (cropValue() + 10)); });
     QShortcut* decreaseTen = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Down)), this, [this]()
     { setCropValue(cropValue() < 10 ? 0 : (cropValue() - 10)); });
-    QShortcut* crop = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Return)),this, [=]()
-    { onCropButtonClicked(); });
-    QShortcut* makeEnergyImage = new QShortcut(QKeySequence(QKeyCombination(Qt::SHIFT, Qt::Key_Return)), this, [this]()
-    { startMakeEnergyImage(); });
 
     // Connects
     connect(ui.clockwiseButton, &QPushButton::clicked, this, &MainWidget::clockwiseImage);
@@ -157,6 +153,9 @@ MainWidget::~MainWidget()
 
 bool MainWidget::importImage(bool showMessageBoxOnError)
 {
+    if (isWorking_)
+        return false;
+
     QString filename = QFileDialog::getOpenFileName(
         this, EASYTR("Open Image"), lastOpenDirectory_.isEmpty() ? QDir::currentPath() : lastOpenDirectory_,
         QString("%1 (*.png *jpg *.jpeg *.bmp);;%2 (*)").arg(EASYTR("Image Files")).arg(EASYTR("All Files")));
@@ -267,7 +266,7 @@ static QImage composeCropResult(const QImage& left, const QImage& middle, const 
 
 void MainWidget::startCrop(bool highlightLowEnergyLine)
 {
-    if (isWorking_)
+    if (isWorking_ || !getCurrent() || cropValue() == 0)
         return;
 
     QImage fullImage = currentImage();
@@ -303,7 +302,7 @@ void MainWidget::startCrop(bool highlightLowEnergyLine)
 
 void MainWidget::startMakeEnergyImage()
 {
-    if (isWorking_)
+    if (isWorking_ || !getCurrent())
         return;
 
     isWorking_ = true;
@@ -313,21 +312,21 @@ void MainWidget::startMakeEnergyImage()
 
 void MainWidget::clockwiseImage()
 {
-    if (currentImage().isNull())
+    if (isWorking_ || currentImage().isNull())
         return;
     addNewImage(currentImage().transformed(QTransform().rotate(90)));
 }
 
 void MainWidget::anticlockwiseImage()
 {
-    if (currentImage().isNull())
+    if (isWorking_ || currentImage().isNull())
         return;
     addNewImage(currentImage().transformed(QTransform().rotate(-90)));
 }
 
 void MainWidget::horizontalFlipImage()
 {
-    if (currentImage().isNull())
+    if (isWorking_ || currentImage().isNull())
         return;
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 13, 0))
     addNewImage(currentImage().flipped(Qt::Horizontal));
@@ -338,7 +337,7 @@ void MainWidget::horizontalFlipImage()
 
 void MainWidget::verticalFlipImage()
 {
-    if (currentImage().isNull())
+    if (isWorking_ || currentImage().isNull())
         return;
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 13, 0))
     addNewImage(currentImage().flipped(Qt::Vertical));
@@ -349,7 +348,7 @@ void MainWidget::verticalFlipImage()
 
 bool MainWidget::undo()
 {
-    if (records_.current() && records_.current()->hasPrevious())
+    if (!isWorking_ && records_.current() && records_.current()->hasPrevious())
     {
         records_.moveToPrevious();
         updateDisplayedImage(currentImage());
@@ -361,7 +360,7 @@ bool MainWidget::undo()
 
 bool MainWidget::redo()
 {
-    if (records_.current() && records_.current()->hasNext())
+    if (!isWorking_ && records_.current() && records_.current()->hasNext())
     {
         records_.moveToNext();
         updateDisplayedImage(currentImage());
@@ -394,7 +393,7 @@ void MainWidget::updateText()
 void MainWidget::keyPressEvent(QKeyEvent* event)
 {
     // 切换原图显示。
-    if (event->key() == Qt::Key_Y && !event->isAutoRepeat())
+    if (ui.differentButton->isEnabled() && event->key() == Qt::Key_Y && !event->isAutoRepeat())
         toggleToOriginImageDisplay(true);
     TrWidget::keyPressEvent(event);
 }
