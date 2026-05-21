@@ -14,7 +14,7 @@ Image limitImageScale(const Image& img, int width, int height)
 
     double ratioW = static_cast<double>(width) / img.cols;
     double ratioH = static_cast<double>(height) / img.rows;
-    double ratio = std::min(ratioW, ratioH);
+    double ratio  = std::min(ratioW, ratioH);
 
     int newCols = std::max(1, static_cast<int>(std::floor(img.cols * ratio)));
     int newRows = std::max(1, static_cast<int>(std::floor(img.rows * ratio)));
@@ -47,13 +47,13 @@ Image limitImageScale(const Image& img, int width, int height)
             double dxRem = 1.0 - dx;
             dst.r = static_cast<uint8_t>(
                 dyRem * (dxRem * p11.r + dx * p12.r) +
-                dy * (dxRem * p21.r + dx * p22.r));
+                dy    * (dxRem * p21.r + dx * p22.r));
             dst.g = static_cast<uint8_t>(
                 dyRem * (dxRem * p11.g + dx * p12.g) +
-                dy * (dxRem * p21.g + dx * p22.g));
+                dy    * (dxRem * p21.g + dx * p22.g));
             dst.b = static_cast<uint8_t>(
                 dyRem * (dxRem * p11.b + dx * p12.b) +
-                dy * (dxRem * p21.b + dx * p22.b));
+                dy    * (dxRem * p21.b + dx * p22.b));
         }
     }
 
@@ -63,7 +63,7 @@ Image limitImageScale(const Image& img, int width, int height)
 std::vector<IPos> mapLineToOriginalSize(
     const std::vector<IPos>& scaledLine,
     int originalRows, int originalCols,
-    int scaledRows, int scaledCols)
+    int scaledRows,   int scaledCols)
 {
     std::vector<IPos> originalLine;
     originalLine.reserve(originalRows);
@@ -78,7 +78,7 @@ std::vector<IPos> mapLineToOriginalSize(
 
         // 获取缩放图中该行对应的列坐标，并映射回原图列坐标
         double scaledCol = scaledLine[scaledRow].x;
-        int originalCol = std::clamp(static_cast<int>(std::round(scaledCol * ratioX)), 0, originalCols - 1);
+        int originalCol  = std::clamp(static_cast<int>(std::round(scaledCol * ratioX)), 0, originalCols - 1);
 
         originalLine.emplace_back(originalCol, row);
     }
@@ -86,11 +86,55 @@ std::vector<IPos> mapLineToOriginalSize(
     return originalLine;
 }
 
-Image highlightLine(const Image& img, const std::vector<IPos>& line, const RgbColor& color)
+Image highlightLine(
+    const Image& img, const std::vector<IPos>& line,
+    const RgbColor& color, bool antialiasing)
 {
+    if (line.empty())
+        return img;
+
     Image res = img;
-    for (const auto& pt : line)
-        res.at<RgbColor>(pt) = color;
+
+    if (antialiasing)
+    {
+        constexpr double radius = 0.5;
+        constexpr double fringe = 1.0;
+        constexpr int    expand = static_cast<int>(radius + fringe) + 1; // 2
+
+        auto smoothstep = [](double edge0, double edge1, double x) -> double
+        {
+            double t = std::clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+            return t * t * (3.0 - 2.0 * t);
+        };
+
+        for (const auto& pt : line)
+        {
+            int row     = pt.y;
+            int seamCol = pt.x;
+
+            int minCol = std::max(0,            seamCol - expand);
+            int maxCol = std::min(img.cols - 1, seamCol + expand);
+
+            for (int col = minCol; col <= maxCol; ++col)
+            {
+                double d = std::abs(col - seamCol);
+                double alpha = 1.0 - smoothstep(radius, radius + fringe, d);
+                if (alpha <= 0.0)
+                    continue;
+
+                auto& pixel = res.at<RgbColor>(row, col);
+                pixel.r = static_cast<uint8_t>(alpha * color.r + (1.0 - alpha) * pixel.r);
+                pixel.g = static_cast<uint8_t>(alpha * color.g + (1.0 - alpha) * pixel.g);
+                pixel.b = static_cast<uint8_t>(alpha * color.b + (1.0 - alpha) * pixel.b);
+            }
+        }
+    }
+    else
+    {
+        for (const auto& pt : line)
+            res.at<RgbColor>(pt) = color;
+    }
+
     return res;
 }
 
@@ -103,7 +147,7 @@ Image removeLine(const Image& img, const std::vector<IPos>& line)
         int colToRemove = line[row].x;
 
         const uint8_t* pSrcRow = &img.data()[row * img.cols * img.channel];
-        uint8_t* pDstRow = &res.data()[row * res.cols * res.channel];
+        uint8_t* pDstRow       = &res.data()[row * res.cols * res.channel];
 
         int firstPartCount = colToRemove;
         if (firstPartCount > 0)

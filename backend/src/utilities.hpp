@@ -20,12 +20,14 @@ Image limitImageScale(const Image& img, int width, int height);
 std::vector<IPos> mapLineToOriginalSize(
     const std::vector<IPos>& scaledLine,
     int originalRows, int originalCols,
-    int scaledRows, int scaledCols);
+    int scaledRows,   int scaledCols);
 
 /**
  * @brief 以指定颜色对图像的给定线条区域着色。
  */
-Image highlightLine(const Image& img, const std::vector<IPos>& line, const RgbColor& color);
+Image highlightLine(
+    const Image& img, const std::vector<IPos>& line,
+    const RgbColor& color, bool antialiasing);
 
 /**
  * @brief 移除图像的指定线条区域。
