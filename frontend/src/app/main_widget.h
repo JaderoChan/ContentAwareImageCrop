@@ -32,7 +32,7 @@ public:
     bool setCropValue(size_t value);
 
     // 开始内容感知图像裁切。
-    void startCrop(bool highlightLowEnergyLine);
+    void startCrop(bool highlightLowEnergyLine = true);
     void startMakeEnergyImage();
 
     void clockwiseImage();
@@ -65,6 +65,8 @@ signals:
 protected:
     void updateText() override;
     void resizeEvent(QResizeEvent* event) override;
+    void keyPressEvent(QKeyEvent* event) override;
+    void keyReleaseEvent(QKeyEvent* event) override;
     bool eventFilter(QObject* obj, QEvent* event) override;
 
     void onOneCropped(const QImage& image, size_t progress);

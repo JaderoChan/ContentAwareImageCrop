@@ -94,6 +94,12 @@ MainWidget::MainWidget(QWidget* parent)
     { setCropValue((cropRangeHigh() - cropRangeLow() - cropValue()) < 10 ? cropRangeHigh() : (cropValue() + 10)); });
     QShortcut* decreaseTen = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Down)), this, [this]()
     { setCropValue(cropValue() < 10 ? 0 : (cropValue() - 10)); });
+    QShortcut* crop = new QShortcut(
+        QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Enter)),
+        this, &MainWidget::startCrop);
+    QShortcut* makeEnergyImage = new QShortcut(
+        QKeySequence(QKeyCombination(Qt::SHIFT, Qt::Key_Enter)),
+        this, &MainWidget::startMakeEnergyImage);
 
     // Connects
     connect(ui.clockwiseButton, &QPushButton::clicked, this, &MainWidget::clockwiseImage);
@@ -125,18 +131,9 @@ MainWidget::MainWidget(QWidget* parent)
     connect(ui.makeEnergyImageButton, &QPushButton::clicked, this, &MainWidget::startMakeEnergyImage);
 
     connect(ui.differentButton, &QPushButton::pressed, this, [this]()
-    {
-        updateDisplayedImage(originImage());
-        dimOverlayLeft_->setVisible(false);
-        dimOverlayRight_->setVisible(false);
-        rangeHintLineLow_->setVisible(false);
-        rangeHintLineHigh_->setVisible(false);
-    });
+    { toggleToOriginImageDisplay(true); });
     connect(ui.differentButton, &QPushButton::released, this, [this]()
-    {
-        updateDisplayedImage(currentImage());
-        updateRangeHintLines();
-    });
+    { toggleToOriginImageDisplay(false); });
 
     // TODO: No hard coding value.
     connect(ui.exportButton, &QPushButton::clicked, this, [this]() { exportImage(true); });
@@ -374,9 +371,30 @@ void MainWidget::updateText()
     ui.anticlockwiseButton->setToolTip(EASYTR("Rotate 90 degrees anticlockwise ([)"));
     ui.horFlipButton->setToolTip(EASYTR("Horizontal flip"));
     ui.verFlipButton->setToolTip(EASYTR("Vertical flip"));
+    ui.resetRangeButton->setToolTip(EASYTR("Reset slider"));
+    ui.resetValueButton->setToolTip(EASYTR("Reset slider"));
     ui.undoButton->setToolTip(EASYTR("Undo (Ctrl + Z)"));
     ui.redoButton->setToolTip(EASYTR("Redo (Ctrl + Y)"));
-    ui.differentButton->setToolTip(EASYTR("Compared with the original image"));
+    ui.differentButton->setToolTip(EASYTR("Compared with the original image (Y)"));
+
+    ui.cropButton->setText(EASYTR("Crop (Ctrl + Enter)"));
+    ui.makeEnergyImageButton->setText(EASYTR("Make Energy Image (Shift + Enter)"));
+    ui.exportButton->setText(EASYTR("Export (Ctrl + E)"));
+}
+
+void MainWidget::keyPressEvent(QKeyEvent* event)
+{
+    // 切换原图显示。
+    if (event->key() == Qt::Key_Y && !event->isAutoRepeat())
+        toggleToOriginImageDisplay(true);
+    TrWidget::keyPressEvent(event);
+}
+
+void MainWidget::keyReleaseEvent(QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_Y && !event->isAutoRepeat())
+        toggleToOriginImageDisplay(false);
+    TrWidget::keyReleaseEvent(event);
 }
 
 bool MainWidget::eventFilter(QObject* obj, QEvent* event)
@@ -597,6 +615,23 @@ void MainWidget::addNewImage(const QImage& image)
 
     updateDisplayedImage(currentImage());
     updateAllUi();
+}
+
+void MainWidget::toggleToOriginImageDisplay(bool enable)
+{
+    if (enable)
+    {
+        updateDisplayedImage(originImage());
+        dimOverlayLeft_->setVisible(false);
+        dimOverlayRight_->setVisible(false);
+        rangeHintLineLow_->setVisible(false);
+        rangeHintLineHigh_->setVisible(false);
+    }
+    else
+    {
+        updateDisplayedImage(currentImage());
+        updateRangeHintLines();
+    }
 }
 
 bool MainWidget::importImage(const QString& filename)
