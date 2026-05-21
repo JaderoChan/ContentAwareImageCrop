@@ -375,9 +375,12 @@ void MainWidget::updateText()
     ui.redoButton->setToolTip(EASYTR("Redo (Ctrl + Y)"));
     ui.differentButton->setToolTip(EASYTR("Compared with the original image (Y)"));
 
-    ui.cropButton->setText(EASYTR("Crop (Ctrl + Enter)"));
-    ui.makeEnergyImageButton->setText(EASYTR("Make Energy Image (Shift + Enter)"));
-    ui.exportButton->setText(EASYTR("Export (Ctrl + E)"));
+    ui.cropButton->setText(EASYTR("Crop"));
+    ui.cropButton->setToolTip(EASYTR("Ctrl + Enter"));
+    ui.makeEnergyImageButton->setText(EASYTR("Make Energy Image"));
+    ui.makeEnergyImageButton->setToolTip(EASYTR("Shift + Enter"));
+    ui.exportButton->setText(EASYTR("Export"));
+    ui.exportButton->setText(EASYTR("Ctrl + E"));
 }
 
 void MainWidget::keyPressEvent(QKeyEvent* event)
