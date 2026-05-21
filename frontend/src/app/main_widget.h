@@ -32,7 +32,7 @@ public:
     bool setCropValue(size_t value);
 
     // 开始内容感知图像裁切。
-    void startCrop(bool highlightLowEnergyLine = true);
+    void startCrop(bool highlightLowEnergyLine);
     void startMakeEnergyImage();
 
     void clockwiseImage();

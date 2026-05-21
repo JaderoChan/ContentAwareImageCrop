@@ -94,12 +94,10 @@ MainWidget::MainWidget(QWidget* parent)
     { setCropValue((cropRangeHigh() - cropRangeLow() - cropValue()) < 10 ? cropRangeHigh() : (cropValue() + 10)); });
     QShortcut* decreaseTen = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Down)), this, [this]()
     { setCropValue(cropValue() < 10 ? 0 : (cropValue() - 10)); });
-    QShortcut* crop = new QShortcut(
-        QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Enter)),
-        this, &MainWidget::startCrop);
-    QShortcut* makeEnergyImage = new QShortcut(
-        QKeySequence(QKeyCombination(Qt::SHIFT, Qt::Key_Enter)),
-        this, &MainWidget::startMakeEnergyImage);
+    QShortcut* crop = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Enter)), this, [this]()
+    { startCrop(true); });
+    QShortcut* makeEnergyImage = new QShortcut(QKeySequence(QKeyCombination(Qt::SHIFT, Qt::Key_Enter)), this, [this]()
+    { startMakeEnergyImage(); });
 
     // Connects
     connect(ui.clockwiseButton, &QPushButton::clicked, this, &MainWidget::clockwiseImage);
