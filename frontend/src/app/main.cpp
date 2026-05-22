@@ -17,7 +17,10 @@ int main(int argc, char* argv[])
     a.setOrganizationName(APP_ORGANIZATION);
     a.setApplicationName(APP_TITLE);
     a.setApplicationVersion(APP_VERSION);
+    // MacOS 平台下不显式设置程序图标。
+#ifndef Q_OS_MAC
     a.setWindowIcon(getLogoIcon());
+#endif
 
     // 设置 Qt 图像内存分配上限
     QImageReader::setAllocationLimit(QIMAGE_ALLOCATION_LIMIT);
