@@ -23,8 +23,9 @@ public:
     explicit MainWidget(const QString& filename, QWidget* parent = nullptr);
     ~MainWidget();
 
-    bool importImage(bool showMessageBoxOnError);
-    bool exportImage(bool showMessageBoxOnError);
+    // 如果 filename 指定为空则打开文件对话框。
+    bool importImage(QString filename, bool showMessageBoxOnError);
+    bool exportImage(QString filename, bool showMessageBoxOnError);
 
     bool setMaxRecordSteps(size_t steps);
 
@@ -120,9 +121,6 @@ private:
     void addNewImage(const QImage& image);
 
     void toggleToOriginImageDisplay(bool enable);
-
-    bool importImage(const QString& filename);
-    bool exportImage(const QString& filename);
 
     const RecordStep* getCurrent() const { return records_.current() ? &records_.current()->value() : nullptr; }
     RecordStep* getCurrent() { return records_.current() ? &records_.current()->value() : nullptr; }

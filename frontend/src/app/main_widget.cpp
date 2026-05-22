@@ -81,7 +81,7 @@ MainWidget::MainWidget(QWidget* parent)
 
     // TODO: No hard coding value.
     QShortcut* importImg = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_O)),
-    this, [this]() { importImage(true); });
+    this, [this]() { importImage("", true); });
     QShortcut* addOne = new QShortcut(QKeySequence(QKeyCombination(Qt::Key_Up)),
     this, [this]() { setCropValue(cropValue() + 1); });
     QShortcut* decreaseOne = new QShortcut(QKeySequence(QKeyCombination(Qt::Key_Down)),
@@ -134,7 +134,7 @@ MainWidget::MainWidget(QWidget* parent)
     { toggleToOriginImageDisplay(false); });
 
     // TODO: No hard coding value.
-    connect(ui.exportButton, &QPushButton::clicked, this, [this]() { exportImage(true); });
+    connect(ui.exportButton, &QPushButton::clicked, this, [this]() { exportImage("", true); });
 
     // Update UI
     updateAllUi();
@@ -144,7 +144,7 @@ MainWidget::MainWidget(QWidget* parent)
 MainWidget::MainWidget(const QString& filename, QWidget* parent)
     : MainWidget(parent)
 {
-    importImage(filename);
+    importImage(filename, true);
     updateAllUi();
 }
 
@@ -155,14 +155,17 @@ MainWidget::~MainWidget()
     workerThread_.wait();
 }
 
-bool MainWidget::importImage(bool showMessageBoxOnError)
+bool MainWidget::importImage(QString filename, bool showMessageBoxOnError)
 {
     if (isWorking_)
         return false;
 
-    QString filename = QFileDialog::getOpenFileName(
-        this, EASYTR("Open Image"), lastOpenDirectory_.isEmpty() ? QDir::currentPath() : lastOpenDirectory_,
-        QString("%1 (*.png *jpg *.jpeg *.bmp);;%2 (*)").arg(EASYTR("Image Files")).arg(EASYTR("All Files")));
+    if (filename.isEmpty())
+    {
+        filename = QFileDialog::getOpenFileName(
+            this, EASYTR("Open Image"), lastOpenDirectory_.isEmpty() ? QDir::currentPath() : lastOpenDirectory_,
+            QString("%1 (*.png *jpg *.jpeg *.bmp);;%2 (*)").arg(EASYTR("Image Files")).arg(EASYTR("All Files")));
+    }
 
     if (filename.isEmpty())
     {
@@ -173,21 +176,34 @@ bool MainWidget::importImage(bool showMessageBoxOnError)
 
     lastOpenDirectory_ = QFileInfo(filename).dir().path();
 
-    if (!importImage(filename))
+    QImage image;
+    if (image.load(filename))
     {
-        if (showMessageBoxOnError)
-            popupWarning(EASYTR("Warning"), EASYTR("Failed to open image file."), EASYTR("Ok"), this);
-        return false;
+        RecordStep step(image, image, filename, QFileInfo(filename).size(), 0, image.width(), 0);
+        records_.insertNext(step);
+
+        updateDisplayedImage(currentImage());
+        updateAllUi();
+
+        return true;
     }
 
-    return true;
+    if (showMessageBoxOnError)
+        popupWarning(EASYTR("Warning"), EASYTR("Failed to open image file."), EASYTR("Ok"), this);
+    return false;
 }
 
-bool MainWidget::exportImage(bool showMessageBoxOnError)
+bool MainWidget::exportImage(QString filename, bool showMessageBoxOnError)
 {
-    QString filename = QFileDialog::getSaveFileName(
-        this, EASYTR("Save Image"), lastOpenDirectory_.isEmpty() ? QDir::currentPath() : lastOpenDirectory_,
-        QString("%1 (*.png *jpg *.jpeg *.bmp);;%2 (*)").arg(EASYTR("Image Files")).arg(EASYTR("All Files")));
+    if (isWorking_)
+        return false;
+
+    if (filename.isEmpty())
+    {
+        filename = QFileDialog::getSaveFileName(
+            this, EASYTR("Save Image"), lastOpenDirectory_.isEmpty() ? QDir::currentPath() : lastOpenDirectory_,
+            QString("%1 (*.png *jpg *.jpeg *.bmp);;%2 (*)").arg(EASYTR("Image Files")).arg(EASYTR("All Files")));
+    }
 
     if (filename.isEmpty())
     {
@@ -198,14 +214,15 @@ bool MainWidget::exportImage(bool showMessageBoxOnError)
 
     lastOpenDirectory_ = QFileInfo(filename).dir().path();
 
-    if (!exportImage(filename))
+    if (!records_.current())
     {
         if (showMessageBoxOnError)
             popupWarning(EASYTR("Warning"), EASYTR("Failed to save the image file."), EASYTR("Ok"), this);
         return false;
     }
 
-    return true;
+    QImage image = currentImage();
+    return image.save(filename);
 }
 
 bool MainWidget::setMaxRecordSteps(size_t steps)
@@ -409,7 +426,7 @@ bool MainWidget::eventFilter(QObject* obj, QEvent* event)
                 {
                     const QUrl url = e->mimeData()->urls().constFirst();
                     if (url.isLocalFile())
-                        importImage(url.toLocalFile());
+                        importImage(url.toLocalFile(), true);
                 }
                 return true;
             }
@@ -633,30 +650,4 @@ void MainWidget::toggleToOriginImageDisplay(bool enable)
         updateDisplayedImage(currentImage());
         updateRangeHintLines();
     }
-}
-
-bool MainWidget::importImage(const QString& filename)
-{
-    QImage image;
-    if (image.load(filename))
-    {
-        RecordStep step(image, image, filename, QFileInfo(filename).size(), 0, image.width(), 0);
-        records_.insertNext(step);
-
-        updateDisplayedImage(currentImage());
-        updateAllUi();
-
-        return true;
-    }
-    return false;
-}
-
-bool MainWidget::exportImage(const QString& filename)
-{
-    if (records_.current())
-    {
-        QImage image = currentImage();
-        return image.save(filename);
-    }
-    return false;
 }
