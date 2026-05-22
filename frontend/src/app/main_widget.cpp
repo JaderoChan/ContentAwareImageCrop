@@ -307,6 +307,9 @@ void MainWidget::startMakeEnergyImage()
         return;
 
     isWorking_ = true;
+    // Clear left and right part.
+    cropLeftPart_ = QImage();
+    cropRightPart_ = QImage();
     updateAllUi();
     emit startMakeEnergyImageWork(currentImage());
 }
