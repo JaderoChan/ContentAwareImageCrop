@@ -214,6 +214,9 @@ bool MainWidget::setMaxRecordSteps(size_t steps)
     while (records_.length() > maxRecordSteps_)
         records_.removeHead();
 
+    updateDisplayedImage(currentImage());
+    updateAllUi();
+
     return true;
 }
 
@@ -623,8 +626,11 @@ void MainWidget::updateAllUi()
 
 void MainWidget::addNewImage(const QImage& image)
 {
+    if (maxRecordSteps_ == 0)
+        return;
+
     records_.removeAllNext();
-    if (records_.length() == maxRecordSteps_)
+    while (records_.length() >= maxRecordSteps_)
         records_.removeHead();
 
     records_.insertNext(getCurrent() ?
