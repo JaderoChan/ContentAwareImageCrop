@@ -12,6 +12,8 @@ namespace converter
 
 static QImage toQImage(const Image& image)
 {
+    if (image.isEmpty())
+        return QImage();
     size_t bytesPerLine = image.cols * 3;
     return QImage(image.data(), image.cols, image.rows, bytesPerLine, QImage::Format_RGB888).copy();
 }
@@ -48,25 +50,49 @@ void CropImageWorker::startCropWork(CropImageParameters parameters)
     shouldClose_.store(false);
 
     const auto&
-    [qimg, cropValue, cropUpdateT, limitSize, highlightColor, isLimit, isHighlight, isAntialiasing] = parameters;
+    [qimg, cropValue, cropRangeLow, cropRangeHigh, cropUpdateT,
+     limitSize, highlightColor, isLimit, isHighlight, isAntialiasing] = parameters;
 
     Image img = converter::toImage(qimg);
+
+    int colLow  = cropRangeLow;
+    int colHigh = (cropRangeHigh < 0) ? img.cols : cropRangeHigh;
+
     size_t counter = 0;
-    for (size_t i = 0; i < parameters.cropValue && !shouldClose_; ++i)
+    for (size_t i = 0; i < cropValue && !shouldClose_; ++i)
     {
+        if (colHigh <= colLow)
+            break;
+
         std::vector<IPos> line;
-        if (isLimit)
+        if (isLimit && (img.rows > limitSize.height() || img.cols > limitSize.width()))
         {
             Image scaled = limitImageScale(img, limitSize.width(), limitSize.height());
-            line = fetchMinimumEnergyLine(scaled);
-            line = mapLineToOriginalSize(line, img.rows, img.cols, scaled.rows, scaled.cols);
+            // 将范围边界映射到缩放图坐标
+            double ratio = static_cast<double>(scaled.cols) / img.cols;
+            int scaledLow  = std::clamp(static_cast<int>(std::round(colLow  * ratio)), 0, scaled.cols - 1);
+            int scaledHigh = std::clamp(static_cast<int>(std::round(colHigh * ratio)), 0, scaled.cols);
+
+            if (scaledHigh > scaledLow)
+            {
+                line = fetchMinimumEnergyLine(scaled, scaledLow, scaledHigh);
+                if (!line.empty())
+                    line = mapLineToOriginalSize(line, img.rows, img.cols, scaled.rows, scaled.cols);
+            }
+            else
+            {
+                line = fetchMinimumEnergyLine(img, colLow, colHigh);
+            }
         }
         else
         {
-            line = fetchMinimumEnergyLine(img);
+            line = fetchMinimumEnergyLine(img, colLow, colHigh);
         }
 
-        if (counter == cropUpdateT) /* Reduce the interface update frequency to prevent UI lag. */
+        if (line.empty())
+            break;
+
+        if (counter == cropUpdateT) // Reduce the interface update frequency to prevent UI lag.
         {
             if (isHighlight)
             {
@@ -82,6 +108,8 @@ void CropImageWorker::startCropWork(CropImageParameters parameters)
         counter++;
         counter = (counter > cropUpdateT ? 0 : counter);
         img = removeLine(img, line);
+
+        colHigh--;
     }
 
     emit workFinished(converter::toQImage(img));

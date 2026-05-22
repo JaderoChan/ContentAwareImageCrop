@@ -12,6 +12,10 @@ struct CropImageParameters
     QImage image;
     // 裁切量。
     size_t cropValue{0};
+    // 裁切范围左边界（含）。
+    int cropRangeLow{0};
+    // 裁切范围右边界（不含）。
+    int cropRangeHigh{-1};  // -1 表示使用图像完整宽度（即 img.cols）
     // 画面更新周期。
     size_t cropUpdateT{0};  // 0 为每次裁切后都更新画面。
     // 图像尺寸限制。（仅在 isLimitImageSize 为真时可用）

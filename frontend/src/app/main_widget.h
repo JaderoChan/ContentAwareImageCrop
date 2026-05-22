@@ -141,9 +141,6 @@ private:
     LinkedList<RecordStep> records_;
 
     bool isWorking_ = false;
-    // 裁切时暂存的左侧与右侧图像（裁切范围以外的部分）。
-    QImage cropLeftPart_;
-    QImage cropRightPart_;
     CropImageWorker worker_;
     QThread workerThread_;
 

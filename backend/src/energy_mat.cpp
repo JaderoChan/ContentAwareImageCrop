@@ -33,8 +33,7 @@ double computePointEnergy(
         }
     }
 
-    assert(validPoint != 0);
-    return 1.0 - energy / validPoint;
+    return validPoint == 0 ? 0.0 : 1.0 - energy / validPoint;
 }
 
 Mat<double> createEnergyMat(const Image& img)
@@ -78,61 +77,64 @@ Image energyMatToGrayImage(const Mat<double>& energyMat)
     return img;
 }
 
-std::vector<IPos> fetchMinimumEnergyLine(const Image& img)
+std::vector<IPos> fetchMinimumEnergyLine(const Image& img, int colLow, int colHigh)
 {
-    assert(img.rows > 2 && img.cols > 2 && img.channel == 3 && !img.isEmpty());
+    if (colHigh < 0)
+        colHigh = img.cols;
 
-    Mat<double> energyDp(img.rows, img.cols, 1, DBL_MAX);
-    Mat<int8_t> offsetDp(img.rows, img.cols, 1, 0);
+    // 参数无效时返回空
+    if (img.isEmpty() || img.channel != 3 || colLow < 0 || colHigh > img.cols || colHigh <= colLow)
+        return {};
+
+    // DP 矩阵覆盖 [colLow, colHigh) 范围，列索引为局部索引 lc = col - colLow。
+    const int rangeWidth = colHigh - colLow;
+    Mat<double> energyDp(img.rows, rangeWidth, 1, DBL_MAX);
+    Mat<int8_t> offsetDp(img.rows, rangeWidth, 1, 0);
 
     double minEnergy = DBL_MAX;
-    int minEnergyLastCol = 0;
+    int minEnergyLastLc = 0;
 
-    // 初始化 energyDp 第一行的能量值
-    for (int col = 0; col < img.cols; ++col)
-        energyDp.at<double>(0, col) = computePointEnergy(img, 0, col);
+    // 初始化第一行
+    for (int lc = 0; lc < rangeWidth; ++lc)
+        energyDp.at<double>(0, lc) = computePointEnergy(img, 0, colLow + lc);
 
     for (int row = 1; row < img.rows; ++row)
     {
-        for (int col = 0; col < img.cols; ++col)
+        for (int lc = 0; lc < rangeWidth; ++lc)
         {
-            double& energy = energyDp.at<double>(row, col);
-            int8_t& direct = offsetDp.at<int8_t>(row, col);
+            double& energy = energyDp.at<double>(row, lc);
+            int8_t& direct = offsetDp.at<int8_t>(row, lc);
 
-            std::array<IPos, 3> pts{
-                IPos(col - 1, row - 1), // Left top
-                IPos(col, row - 1),     // Top
-                IPos(col + 1, row - 1)  // Right top
-            };
-
-            for (int i = 0; i < 3; ++i)
+            for (int d = -1; d <= 1; ++d)
             {
-                if (energyDp.contains(pts[i]) && energyDp.at<double>(pts[i]) < energy)
+                int nlc = lc + d;
+                if (nlc < 0 || nlc >= rangeWidth)
+                    continue;
+
+                double prev = energyDp.at<double>(row - 1, nlc);
+                if (prev < energy)
                 {
-                    energy = energyDp.at<double>(pts[i]);
-                    direct = i - 1;
+                    energy = prev;
+                    direct = static_cast<int8_t>(d);
                 }
             }
 
-            energy += computePointEnergy(img, row, col);
+            energy += computePointEnergy(img, row, colLow + lc);
 
-            if (row == img.rows - 1)
+            if (row == img.rows - 1 && energy < minEnergy)
             {
-                if (energy < minEnergy)
-                {
-                    minEnergy = energy;
-                    minEnergyLastCol = col;
-                }
+                minEnergy = energy;
+                minEnergyLastLc = lc;
             }
         }
     }
 
-    std::vector<IPos> line(energyDp.rows);
-    int col = minEnergyLastCol;
-    for (int row = energyDp.rows - 1; row >= 0; --row)
+    std::vector<IPos> line(img.rows);
+    int lc = minEnergyLastLc;
+    for (int row = img.rows - 1; row >= 0; --row)
     {
-        line[row] = IPos(col, row);
-        col = col + offsetDp.at<int8_t>(row, col);
+        line[row] = IPos(colLow + lc, row);
+        lc = std::clamp(lc + static_cast<int>(offsetDp.at<int8_t>(row, lc)), 0, rangeWidth - 1);
     }
 
     return line;

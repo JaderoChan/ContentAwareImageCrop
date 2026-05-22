@@ -1,13 +1,13 @@
 #include "utilities.hpp"
 
-#include <cassert>
 #include <cmath>
 #include <array>
 #include <algorithm>
 
 Image limitImageScale(const Image& img, int width, int height)
 {
-    assert(width > 0 && height > 0 && !img.isEmpty());
+    if (width <= 0 || height <= 0 || img.isEmpty())
+        return img;
 
     if (img.cols <= width && img.rows <= height)
         return img;

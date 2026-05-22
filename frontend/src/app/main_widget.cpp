@@ -7,7 +7,6 @@
 #include <qlist.h>
 #include <qmessagebox.h>
 #include <qmimedata.h>
-#include <qpainter.h>
 #include <qpen.h>
 #include <qshortcut.h>
 #include <qtransform.h>
@@ -81,20 +80,24 @@ MainWidget::MainWidget(QWidget* parent)
     ui.exportButton->setShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_E)));
 
     // TODO: No hard coding value.
-    QShortcut* importImg = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_O)), this, [this]()
-    { importImage(true); });
-    QShortcut* addOne = new QShortcut(QKeySequence(QKeyCombination(Qt::Key_Up)), this, [this]()
-    { setCropValue(cropValue() + 1); });
-    QShortcut* decreaseOne = new QShortcut(QKeySequence(QKeyCombination(Qt::Key_Down)), this, [this]()
-    { setCropValue(cropValue() - 1); });
-    QShortcut* addTen = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Up)), this, [this]()
-    { setCropValue((cropRangeHigh() - cropRangeLow() - cropValue()) < 10 ? cropRangeHigh() : (cropValue() + 10)); });
-    QShortcut* decreaseTen = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Down)), this, [this]()
-    { setCropValue(cropValue() < 10 ? 0 : (cropValue() - 10)); });
-    QShortcut* crop = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Return)), this, [this]()
-    { onCropButtonClicked(); });
-    QShortcut* makeEnergyImage = new QShortcut(QKeySequence(QKeyCombination(Qt::SHIFT, Qt::Key_Return)), this, [this]()
-    { startMakeEnergyImage(); });
+    QShortcut* importImg = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_O)),
+    this, [this]() { importImage(true); });
+    QShortcut* addOne = new QShortcut(QKeySequence(QKeyCombination(Qt::Key_Up)),
+    this, [this]() { setCropValue(cropValue() + 1); });
+    QShortcut* decreaseOne = new QShortcut(QKeySequence(QKeyCombination(Qt::Key_Down)),
+    this, [this]() { setCropValue(cropValue() - 1); });
+    QShortcut* addTen = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Up)),
+    this, [this]()
+    {
+        const size_t maxVal = cropRangeHigh() - cropRangeLow();
+        setCropValue(cropValue() + 10 >= maxVal ? maxVal : cropValue() + 10);
+    });
+    QShortcut* decreaseTen = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Down)),
+    this, [this]() { setCropValue(cropValue() < 10 ? 0 : (cropValue() - 10)); });
+    QShortcut* crop = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Return)),
+    this, [this]() { onCropButtonClicked(); });
+    QShortcut* makeEnergyImage = new QShortcut(QKeySequence(QKeyCombination(Qt::SHIFT, Qt::Key_Return)),
+    this, [this]() { startMakeEnergyImage(); });
 
     // Connects
     connect(ui.clockwiseButton, &QPushButton::clicked, this, &MainWidget::clockwiseImage);
@@ -222,7 +225,7 @@ bool MainWidget::setMaxRecordSteps(size_t steps)
 
 bool MainWidget::setCropRange(size_t low, size_t high)
 {
-    if (!getCurrent() || low >= high || low > currentImageSize().width() || high > currentImageSize().width())
+    if (!getCurrent() || low >= high || high > static_cast<size_t>(currentImageSize().width()))
         return false;
 
     getCurrent()->cropRangeLow = low;
@@ -235,7 +238,7 @@ bool MainWidget::setCropRange(size_t low, size_t high)
 
 bool MainWidget::setCropValue(size_t value)
 {
-    if (!getCurrent() || value > (cropRangeHigh() - cropRangeLow()))
+    if (!getCurrent() || cropRangeHigh() <= cropRangeLow() || value > (cropRangeHigh() - cropRangeLow()))
         return false;
 
     getCurrent()->cropValue = value;
@@ -246,44 +249,15 @@ bool MainWidget::setCropValue(size_t value)
     return true;
 }
 
-static QImage composeCropResult(const QImage& left, const QImage& middle, const QImage& right)
-{
-    int totalWidth =
-        (left.isNull() ? 0 : left.width()) +
-        middle.width() +
-        (right.isNull() ? 0 : right.width());
-    QImage result(totalWidth, middle.height(), middle.format());
-
-    QPainter painter(&result);
-    int x = 0;
-    if (!left.isNull())
-    {
-        painter.drawImage(x, 0, left);
-        x += left.width();
-    }
-    painter.drawImage(x, 0, middle);
-    x += middle.width();
-    if (!right.isNull())
-        painter.drawImage(x, 0, right);
-    return result;
-}
-
 void MainWidget::startCrop(bool highlightLowEnergyLine)
 {
     if (isWorking_ || !getCurrent() || cropValue() == 0)
         return;
 
-    QImage fullImage = currentImage();
-    int low = static_cast<int>(cropRangeLow());
-    int high = static_cast<int>(cropRangeHigh());
-    int h = fullImage.height();
-
-    cropLeftPart_ = low > 0 ? fullImage.copy(0, 0, low, h) : QImage();
-    cropRightPart_ = high < fullImage.width() ? fullImage.copy(high, 0, fullImage.width() - high, h) : QImage();
-    QImage croppedImage = fullImage.copy(low, 0, high - low, h);
-
     CropImageParameters parameters;
-    parameters.image = croppedImage;
+    parameters.image = currentImage();
+    parameters.cropRangeLow  = static_cast<int>(cropRangeLow());
+    parameters.cropRangeHigh = static_cast<int>(cropRangeHigh());
     parameters.cropValue = cropValue();
 
     // TODO: add application configure.
@@ -294,7 +268,6 @@ void MainWidget::startCrop(bool highlightLowEnergyLine)
     // parameters.isHighlightLine
     // parameters.isAntialiasingLine
 
-    // Disable other image operate and update progress.
     isWorking_ = true;
     ui.progressBar->setMinimum(0);
     ui.progressBar->setMaximum(cropValue());
@@ -310,9 +283,6 @@ void MainWidget::startMakeEnergyImage()
         return;
 
     isWorking_ = true;
-    // Clear left and right part.
-    cropLeftPart_ = QImage();
-    cropRightPart_ = QImage();
     updateAllUi();
     emit startMakeEnergyImageWork(currentImage());
 }
@@ -454,14 +424,13 @@ bool MainWidget::eventFilter(QObject* obj, QEvent* event)
 void MainWidget::onOneCropped(const QImage& image, size_t progress)
 {
     ui.progressBar->setValue(progress);
-    updateDisplayedImage(composeCropResult(cropLeftPart_, image, cropRightPart_));
+    updateDisplayedImage(image);
 }
 
 void MainWidget::onWorkFinished(const QImage& image)
 {
-    // Enable other image operate and add result image.
     isWorking_ = false;
-    addNewImage(composeCropResult(cropLeftPart_, image, cropRightPart_));
+    addNewImage(image);
 }
 
 void MainWidget::onCropButtonClicked()
@@ -509,9 +478,9 @@ void MainWidget::updateRangeHintLines()
     {
         double w = currentImageSize().width();
         double h = currentImageSize().height();
-        dimOverlayLeft_->setRect(0, 0, cropRangeLow(), h);
+        dimOverlayLeft_->setRect(0, 0, static_cast<int>(cropRangeLow()), h);
         dimOverlayRight_->setRect(cropRangeHigh(), 0, w - cropRangeHigh(), h);
-        rangeHintLineLow_->setLine(cropRangeLow(), 0, cropRangeLow(), h);
+        rangeHintLineLow_->setLine(static_cast<int>(cropRangeLow()), 0, static_cast<int>(cropRangeLow()), h);
         rangeHintLineHigh_->setLine(cropRangeHigh(), 0, cropRangeHigh(), h);
     }
 }
@@ -537,13 +506,18 @@ void MainWidget::updateImageSizeHintUi()
 
 void MainWidget::updateRangeRelatedUi()
 {
+    const int imgWidth = currentImageSize().width();
+
     {
         QSignalBlocker blocker(ui.rangeSlider);
-        ui.rangeSlider->setRange(0, currentImageSize().width());
-        ui.rangeSlider->setLowValue(cropRangeLow());
-        ui.rangeSlider->setHighValue(cropRangeHigh());
+        if (imgWidth > 0)
+        {
+            ui.rangeSlider->setRange(0, imgWidth);
+            ui.rangeSlider->setLowValue(cropRangeLow());
+            ui.rangeSlider->setHighValue(cropRangeHigh());
+        }
     }
-    ui.rangeSlider->setEnabled(currentImageSize().width() != 0);
+    ui.rangeSlider->setEnabled(imgWidth > 0);
 
     {
         QSignalBlocker lowBlocker(ui.rangeLowLineEdit);
@@ -552,24 +526,27 @@ void MainWidget::updateRangeRelatedUi()
         ui.rangeHighLineEdit->setText(QString::number(cropRangeHigh()));
     }
 
-    auto* lowValidator = new StrictIntValidator(0, currentImageSize().width(), &getCurrent()->cropRangeLow, this);
-    lowValidator->setDynamicTop(&getCurrent()->cropRangeHigh);
-    ui.rangeLowLineEdit->setValidator(lowValidator);
+    if (getCurrent() && imgWidth > 0)
+    {
+        auto* lowValidator = new StrictIntValidator(0, imgWidth, &getCurrent()->cropRangeLow, this);
+        lowValidator->setDynamicTop(&getCurrent()->cropRangeHigh);
+        ui.rangeLowLineEdit->setValidator(lowValidator);
 
-    auto* highValidator = new StrictIntValidator(0, currentImageSize().width(), &getCurrent()->cropRangeHigh, this);
-    highValidator->setDynamicBottom(&getCurrent()->cropRangeLow);
-    ui.rangeHighLineEdit->setValidator(highValidator);
+        auto* highValidator = new StrictIntValidator(0, imgWidth, &getCurrent()->cropRangeHigh, this);
+        highValidator->setDynamicBottom(&getCurrent()->cropRangeLow);
+        ui.rangeHighLineEdit->setValidator(highValidator);
+    }
 
-    ui.rangeLowLineEdit->setEnabled(currentImageSize().width() != 0);
-    ui.rangeHighLineEdit->setEnabled(currentImageSize().width() != 0);
-    ui.resetRangeButton->setEnabled(currentImageSize().width() != 0);
+    ui.rangeLowLineEdit->setEnabled(imgWidth > 0);
+    ui.rangeHighLineEdit->setEnabled(imgWidth > 0);
+    ui.resetRangeButton->setEnabled(imgWidth > 0);
 
     updateRangeHintLines();
 }
 
 void MainWidget::updateValueRalatedUi()
 {
-    size_t cropRange = cropRangeHigh() - cropRangeLow();
+    size_t cropRange = (cropRangeHigh() > cropRangeLow()) ? (cropRangeHigh() - cropRangeLow()) : 0;
 
     {
         QSignalBlocker blocker(ui.valueSlider);
@@ -609,7 +586,7 @@ void MainWidget::updateProgressBarAndButtonUi()
     ui.differentButton->setEnabled(!isWorking_ && getCurrent());
     ui.cropButton->setText(isWorking_ ? EASYTR("Stop") : EASYTR("Crop"));
     ui.cropButton->setEnabled(isWorking_ ? true : (records_.current() && cropValue() != 0));
-    ui.makeEnergyImageButton->setEnabled(!isWorking_ && records_.current());
+    ui.makeEnergyImageButton->setEnabled(!isWorking_ && !currentImageSize().isEmpty());
     updateUndoRedoUi();
 
     ui.progressBar->setVisible(isWorking_);
@@ -634,8 +611,8 @@ void MainWidget::addNewImage(const QImage& image)
         records_.removeHead();
 
     records_.insertNext(getCurrent() ?
-        RecordStep(originImage(), image, filename(), filesize(), 0, image.width(), 0) :
-        RecordStep(image, image, QString(), 0, 0, image.width(), 0));
+        RecordStep(originImage(), image, filename(), filesize(), 0, image.isNull() ? 0 : image.width(), 0) :
+        RecordStep(image, image, QString(), 0, 0, image.isNull() ? 0 : image.width(), 0));
 
     updateDisplayedImage(currentImage());
     updateAllUi();

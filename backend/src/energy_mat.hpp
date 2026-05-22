@@ -29,5 +29,8 @@ Image energyMatToGrayImage(const Mat<double>& energyMat);
 
 /**
  * @brief 取得给定图像的最小能量线。
+ * @param colLow  搜索范围左边界（含），默认为 0。
+ * @param colHigh 搜索范围右边界（不含），默认为 -1 表示使用 img.cols。
+ * @note 返回的坐标始终位于整幅图像的坐标系中。参数无效时返回空向量。
  */
-std::vector<IPos> fetchMinimumEnergyLine(const Image& img);
+std::vector<IPos> fetchMinimumEnergyLine(const Image& img, int colLow = 0, int colHigh = -1);
