@@ -66,10 +66,17 @@ void CropImageWorker::startCropWork(CropImageParameters parameters)
             line = fetchMinimumEnergyLine(img);
         }
 
-        if (isHighlight && counter == cropUpdateT) /* Reduce the interface update frequency to prevent UI lag. */
+        if (counter == cropUpdateT) /* Reduce the interface update frequency to prevent UI lag. */
         {
-            Image highlighted = highlightLine(img, line, converter::toRgbColor(highlightColor), isAntialiasing);
-            emit cropUpdated(converter::toQImage(highlighted), i + 1);
+            if (isHighlight)
+            {
+                Image highlighted = highlightLine(img, line, converter::toRgbColor(highlightColor), isAntialiasing);
+                emit cropUpdated(converter::toQImage(highlighted), i + 1);
+            }
+            else
+            {
+                emit cropUpdated(converter::toQImage(img), i + 1);
+            }
         }
 
         counter++;
