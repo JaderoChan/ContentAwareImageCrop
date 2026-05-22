@@ -14,7 +14,6 @@
 
 #include <common/strict_int_validator.h>
 
-// TODO: No hard coding value.
 // 裁切范围提示线颜色。
 constexpr QColor RANGE_HINT_LINE_COLOR(0, 102, 255);
 
@@ -79,7 +78,6 @@ MainWidget::MainWidget(QWidget* parent)
     ui.redoButton->setShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Y)));
     ui.exportButton->setShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_E)));
 
-    // TODO: No hard coding value.
     QShortcut* importImg = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_O)),
     this, [this]() { importImage("", true); });
     QShortcut* addOne = new QShortcut(QKeySequence(QKeyCombination(Qt::Key_Up)),
@@ -133,7 +131,6 @@ MainWidget::MainWidget(QWidget* parent)
     connect(ui.differentButton, &QPushButton::released, this, [this]()
     { toggleToOriginImageDisplay(false); });
 
-    // TODO: No hard coding value.
     connect(ui.exportButton, &QPushButton::clicked, this, [this]() { exportImage("", true); });
 
     // Update UI
