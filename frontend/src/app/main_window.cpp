@@ -14,6 +14,8 @@
 
 #include <common/strict_int_validator.h>
 #include "settings.h"
+#include "about_dialog.h"
+#include "settings_dialog.h"
 
 // 裁切范围提示线颜色。
 constexpr QColor RANGE_HINT_LINE_COLOR(0, 102, 255);
@@ -99,6 +101,12 @@ MainWindow::MainWindow(QWidget* parent)
     connect(ui.actionImport, &QAction::triggered, this, [this]() { importImage("", true); });
     connect(ui.actionExport, &QAction::triggered, this, [this]() { exportImage("", true); });
     connect(ui.exportButton, &QPushButton::clicked, this, [this]() { ui.actionExport->trigger(); });
+
+    connect(ui.actionAbout, &QAction::triggered, this, [this]()
+    {
+        AboutDialog dlg(this);
+        dlg.exec();
+    });
 
     connect(ui.clockwiseButton, &QPushButton::clicked, this, &MainWindow::clockwiseImage);
     connect(ui.anticlockwiseButton, &QPushButton::clicked, this, &MainWindow::anticlockwiseImage);
@@ -386,7 +394,7 @@ void MainWindow::updateText()
 {
     setUpdatesEnabled(false);
 
-    setWindowTitle(EASYTR("Content-aware image cropper"));
+    setWindowTitle(EASYTR(APP_TITLE));
 
     ui.menuFile->setTitle(EASYTR("File"));
     ui.menuOption->setTitle(EASYTR("Option"));

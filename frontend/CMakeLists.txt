@@ -41,6 +41,7 @@ set(APP_VERSION "${APP_VERSION_MAJOR}.${APP_VERSION_MINOR}.${APP_VERSION_PATCH}"
 set(APP_AUTHOR "頔珞 JaderoChan")
 set(APP_CONTACT_EMAIL "c_dl_cn@outlook.com")
 set(APP_COPYRIGHT_TEXT "Copyright (c) 2026 JaderoChan")
+set(APP_URL "https://github.com/${APP_ORGANIZATION}/${APP_TITLE}")
 
 # 撤销/重做行为的最大步数。此值越大，程序可用步数越多，程序占用的内存也越多。
 set(DEFAULT_MAX_RECORD_STEP 10)
