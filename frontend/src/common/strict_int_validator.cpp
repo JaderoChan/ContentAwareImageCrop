@@ -1,14 +1,14 @@
 #include "strict_int_validator.h"
 
-StrictIntValidator::StrictIntValidator(int bottom, int top, const size_t* fallback, QObject* parent)
+StrictIntValidator::StrictIntValidator(int bottom, int top, const int* fallback, QObject* parent)
     : QIntValidator(bottom, top, parent), fallback_(fallback) {}
 
-void StrictIntValidator::setDynamicBottom(const size_t* ptr)
+void StrictIntValidator::setDynamicBottom(const int* ptr)
 {
     dynamicBottom_ = ptr;
 }
 
-void StrictIntValidator::setDynamicTop(const size_t* ptr)
+void StrictIntValidator::setDynamicTop(const int* ptr)
 {
     dynamicTop_ = ptr;
 }
