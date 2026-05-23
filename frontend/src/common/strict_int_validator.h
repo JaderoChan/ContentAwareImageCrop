@@ -15,16 +15,16 @@
 class StrictIntValidator : public QIntValidator
 {
 public:
-    StrictIntValidator(int bottom, int top, const int* fallback, QObject* parent = nullptr);
+    StrictIntValidator(int bottom, int top, const size_t* fallback, QObject* parent = nullptr);
 
-    void setDynamicBottom(const int* ptr);
-    void setDynamicTop(const int* ptr);
+    void setDynamicBottom(const size_t* ptr);
+    void setDynamicTop(const size_t* ptr);
 
     State validate(QString& input, int& pos) const override;
     void fixup(QString& input) const override;
 
 private:
-    const int* fallback_      = nullptr;
-    const int* dynamicTop_    = nullptr;
-    const int* dynamicBottom_ = nullptr;
+    const size_t* fallback_      = nullptr;
+    const size_t* dynamicTop_    = nullptr;
+    const size_t* dynamicBottom_ = nullptr;
 };
