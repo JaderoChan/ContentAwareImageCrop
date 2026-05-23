@@ -107,6 +107,20 @@ MainWindow::MainWindow(QWidget* parent)
         AboutDialog dlg(this);
         dlg.exec();
     });
+    connect(ui.actionSettings, &QAction::triggered, this, [this]()
+    {
+        if (isWorking_)
+            return;
+
+        auto settings = loadSettings();
+        SettingsDialog dlg(settings, this);
+        auto newSettings = dlg.execForSettings();
+
+        if (newSettings.language != settings.language)
+            setLanguage(newSettings.language);
+
+        saveSettings(newSettings);
+    });
 
     connect(ui.clockwiseButton, &QPushButton::clicked, this, &MainWindow::clockwiseImage);
     connect(ui.anticlockwiseButton, &QPushButton::clicked, this, &MainWindow::anticlockwiseImage);
@@ -396,6 +410,8 @@ void MainWindow::updateText()
 
     setWindowTitle(EASYTR(APP_TITLE));
 
+    ui.filenameLabel->setText(filename().isEmpty() ? EASYTR("No Image") : filename());
+
     ui.menuFile->setTitle(EASYTR("File"));
     ui.menuOption->setTitle(EASYTR("Option"));
     ui.actionImport->setText(EASYTR("Import"));
@@ -644,6 +660,7 @@ void MainWindow::updateProgressBarAndButtonUi()
     ui.actionImport->setEnabled(!isWorking_);
     ui.actionExport->setEnabled(ok);
     ui.exportButton->setEnabled(ui.actionExport->isEnabled());
+    ui.actionSettings->setEnabled(!isWorking_);
 
     ui.differentButton->setEnabled(!isWorking_ && getCurrent());
 
