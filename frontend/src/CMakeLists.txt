@@ -24,7 +24,7 @@ set(PROJECT_SOURCES ${HEADERS} ${SRCS} ${UIS} ${QRC})
 ###########
 
 qt_standard_project_setup()
-qt_add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
+qt_add_executable(${APP_TITLE} ${PROJECT_SOURCES})
 
 ###########
 # 配置依赖 #
@@ -32,14 +32,14 @@ qt_add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 
 # 配置头文件路径
 target_include_directories(
-    ${PROJECT_NAME} PRIVATE
+    ${APP_TITLE} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}/include
 )
 
 # 链接依赖库
 target_link_libraries(
-    ${PROJECT_NAME} PRIVATE
+    ${APP_TITLE} PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
     easy_translate::easy_translate
     ContentAwareImageCropBackend
@@ -50,7 +50,7 @@ target_link_libraries(
 ###############
 
 set_target_properties(
-    ${PROJECT_NAME} PROPERTIES
+    ${APP_TITLE} PROPERTIES
     AUTOMOC ON
     AUTOUIC ON
     AUTORCC ON
@@ -58,14 +58,14 @@ set_target_properties(
 
 # 如果为 MSVC 编译器，显式指定编码，防止乱码情况。
 if(MSVC)
-    target_compile_options(${PROJECT_NAME} PRIVATE /utf-8)
+    target_compile_options(${APP_TITLE} PRIVATE /utf-8)
 endif()
 
 # 指定为GUI应用程序
 if(WIN32)
     option(KEEP_TERMINAL "Keep terminal window" OFF)
     set_target_properties(
-        ${PROJECT_NAME} PROPERTIES
+        ${APP_TITLE} PROPERTIES
         WIN32_EXECUTABLE $<NOT:$<BOOL:${KEEP_TERMINAL}>>
     )
 endif()
@@ -73,7 +73,7 @@ endif()
 # 程序是否自动更新语言文件（开发时使用）
 option(UPDATE_TRANSLATIONS_FILES "Whether update the translations files. Only for dev." OFF)
 target_compile_definitions(
-    ${PROJECT_NAME} PRIVATE
+    ${APP_TITLE} PRIVATE
     $<$<BOOL:${UPDATE_TRANSLATIONS_FILES}>:EASY_TRANSLATE_UPDATE_TRANSLATIONS_FILES>
 )
 
@@ -88,7 +88,7 @@ if(WIN32)
         ${RC_FILE}
         @ONLY
     )
-    target_sources(${PROJECT_NAME} PRIVATE ${RC_FILE})
+    target_sources(${APP_TITLE} PRIVATE ${RC_FILE})
 elseif(APPLE)
     # Apple
     set(APP_ICON ${APP_ICON_DIR}/app.icns)
@@ -106,10 +106,10 @@ elseif(APPLE)
         ${APP_ICON} PROPERTIES
         MACOSX_PACKAGE_LOCATION "Resources"
     )
-    target_sources(${PROJECT_NAME} PRIVATE ${APP_ICON})
+    target_sources(${APP_TITLE} PRIVATE ${APP_ICON})
 
     set_target_properties(
-        ${PROJECT_NAME} PROPERTIES
+        ${APP_TITLE} PROPERTIES
         MACOSX_BUNDLE ON
         MACOSX_BUNDLE_INFO_PLIST ${MACOSX_BUNDLE_INFO_PLIST}
     )
@@ -120,7 +120,7 @@ elseif(APPLE)
         ${LANG_FILES} PROPERTIES
         MACOSX_PACKAGE_LOCATION "Resources/languages"
     )
-    target_sources(${PROJECT_NAME} PRIVATE ${LANG_FILES})
+    target_sources(${APP_TITLE} PRIVATE ${LANG_FILES})
 else()
     # TODO
 endif()
@@ -132,9 +132,9 @@ endif()
 # 复制语言文件至输出目录。
 if(NOT APPLE)
     add_custom_command(
-        TARGET ${PROJECT_NAME} POST_BUILD
+        TARGET ${APP_TITLE} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
-        ${LANGUAGES_DIR} $<TARGET_FILE_DIR:${PROJECT_NAME}>/languages
+        ${LANGUAGES_DIR} $<TARGET_FILE_DIR:${APP_TITLE}>/languages
     )
 endif()
 
@@ -150,10 +150,10 @@ if(DEPLOYQT_AFTER_BUILD)
     endif()
 
     add_custom_command(
-        TARGET ${PROJECT_NAME} POST_BUILD
+        TARGET ${APP_TITLE} POST_BUILD
         COMMAND ${DEPLOYQT}
         $<$<CONFIG:Debug>:--debug>$<$<NOT:$<CONFIG:Debug>>:--release>
-        $<TARGET_FILE:${PROJECT_NAME}>
+        $<TARGET_FILE:${APP_TITLE}>
         $<$<PLATFORM_ID:Darwin>:-codesign=->
     )
 endif()
@@ -162,10 +162,10 @@ endif()
 option(CREATE_DMG "Create DMG for MacOS, create-dmg is required." OFF)
 if(APPLE AND CREATE_DMG)
     add_custom_command(
-        TARGET ${PROJECT_NAME} POST_BUILD
+        TARGET ${APP_TITLE} POST_BUILD
         COMMAND ${SCRIPTS_DIR}/create_dmg.sh
-        ${PROJECT_NAME}
+        ${APP_TITLE}
         ${APP_ICON}
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        $<TARGET_FILE_DIR:${APP_TITLE}>
     )
 endif()
