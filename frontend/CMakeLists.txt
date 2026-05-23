@@ -33,7 +33,7 @@ FetchContent_MakeAvailable(easy_translate)
 
 set(APP_ORGANIZATION "JaderoChan")
 set(APP_ORGANIZATION_DOMAIN "io.github.jaderochan")
-set(APP_TITLE "${PROJECT_NAME}")
+set(APP_TITLE "ContentAwareImageCrop")
 set(APP_VERSION_MAJOR ${ContentAwareImageCrop_VERSION_MAJOR})
 set(APP_VERSION_MINOR ${ContentAwareImageCrop_VERSION_MINOR})
 set(APP_VERSION_PATCH ${ContentAwareImageCrop_VERSION_PATCH})
