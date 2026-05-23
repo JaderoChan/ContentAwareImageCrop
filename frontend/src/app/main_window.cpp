@@ -135,7 +135,8 @@ MainWindow::MainWindow(QWidget* parent)
 
     // 根据设置初始化窗口和变量
     auto settings = loadSettings();
-    setGeometry(settings.lastWindowGeo);
+    if (!settings.lastWindowGeo.isNull())
+        setGeometry(settings.lastWindowGeo);
     if (settings.isMaximized)
         showMaximized();
     lastOpenDirectory_ = settings.lastOpenDirectory;
