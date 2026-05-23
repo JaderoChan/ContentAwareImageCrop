@@ -1,8 +1,9 @@
 #pragma once
 
+#include <qcolor.h>
 #include <qstring.h>
 #include <qsize.h>
-#include <qcolor.h>
+#include <qrect.h>
 
 #include "language.h"
 
@@ -10,7 +11,7 @@ struct Settings
 {
     Language language;
     bool isMaximized;
-    QSize lastWindowSize;
+    QRect lastWindowGeo;
 
     size_t cropUpdateT;
     bool isHighlightLine;

@@ -4,7 +4,7 @@
 
 #define RD_FIELD(qsettings, settings, field, default) \
 (settings.field = qsettings.value(#field, default).value<decltype(settings.field)>())
-#define WR_FIRLD(qsettings, settings, field) \
+#define WR_FIELD(qsettings, settings, field) \
 (qsettings.setValue(#field, settings.field))
 
 Settings loadSettings()
@@ -14,7 +14,7 @@ Settings loadSettings()
 
     RD_FIELD(qsettings, settings, language, getCurrentSystemLang());
     RD_FIELD(qsettings, settings, isMaximized, true);
-    RD_FIELD(qsettings, settings, lastWindowSize, QSize(980, 700));
+    RD_FIELD(qsettings, settings, lastWindowGeo, QRect(0, 0, 0, 0));
     RD_FIELD(qsettings, settings, cropUpdateT, 0);
     RD_FIELD(qsettings, settings, isHighlightLine, true);
     RD_FIELD(qsettings, settings, isAntialiasingLine, true);
@@ -30,16 +30,16 @@ void saveSettings(const Settings& settings)
 {
     QSettings qsettings;
 
-    WR_FIRLD(qsettings, settings, language);
-    WR_FIRLD(qsettings, settings, isMaximized);
-    WR_FIRLD(qsettings, settings, lastWindowSize);
-    WR_FIRLD(qsettings, settings, cropUpdateT);
-    WR_FIRLD(qsettings, settings, isHighlightLine);
-    WR_FIRLD(qsettings, settings, isAntialiasingLine);
-    WR_FIRLD(qsettings, settings, isLimitImageSize);
-    WR_FIRLD(qsettings, settings, highlightColor);
-    WR_FIRLD(qsettings, settings, imageLimitedSize);
-    WR_FIRLD(qsettings, settings, lastOpenDirectory);
+    WR_FIELD(qsettings, settings, language);
+    WR_FIELD(qsettings, settings, isMaximized);
+    WR_FIELD(qsettings, settings, lastWindowGeo);
+    WR_FIELD(qsettings, settings, cropUpdateT);
+    WR_FIELD(qsettings, settings, isHighlightLine);
+    WR_FIELD(qsettings, settings, isAntialiasingLine);
+    WR_FIELD(qsettings, settings, isLimitImageSize);
+    WR_FIELD(qsettings, settings, highlightColor);
+    WR_FIELD(qsettings, settings, imageLimitedSize);
+    WR_FIELD(qsettings, settings, lastOpenDirectory);
 
     qsettings.setValue("Language", settings.language);
 }
