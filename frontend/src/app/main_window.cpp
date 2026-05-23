@@ -1,4 +1,4 @@
-#include "main_widget.h"
+#include "main_window.h"
 
 #include <qbrush.h>
 #include <qcolor.h>
@@ -33,10 +33,13 @@ void popupInformation(const QString& title, const QString& text, const QString& 
 void popupWarning(const QString& title, const QString& text, const QString& buttonText, QWidget* parent = nullptr)
 { popupMessageBox(QMessageBox::Warning, title, text, buttonText, QMessageBox::AcceptRole, parent); }
 
-MainWidget::MainWidget(QWidget* parent)
-    : TrWidget(parent)
+MainWindow::MainWindow(QWidget* parent)
+    : TrMainWindow(parent)
 {
     ui.setupUi(this);
+
+    // 默认最大化
+    showMaximized();
 
     // Init graphics view
     scene_ = new QGraphicsScene(this);
@@ -65,10 +68,10 @@ MainWidget::MainWidget(QWidget* parent)
 
     // 初始化工作线程
     worker_.moveToThread(&workerThread_);
-    connect(this, &MainWidget::startCropWork, &worker_, &CropImageWorker::startCropWork);
-    connect(this, &MainWidget::startMakeEnergyImageWork, &worker_, &CropImageWorker::startMakeEnergyImageWork);
-    connect(&worker_, &CropImageWorker::cropUpdated, this, &MainWidget::onOneCropped);
-    connect(&worker_, &CropImageWorker::workFinished, this, &MainWidget::onWorkFinished);
+    connect(this, &MainWindow::startCropWork, &worker_, &CropImageWorker::startCropWork);
+    connect(this, &MainWindow::startMakeEnergyImageWork, &worker_, &CropImageWorker::startMakeEnergyImageWork);
+    connect(&worker_, &CropImageWorker::cropUpdated, this, &MainWindow::onOneCropped);
+    connect(&worker_, &CropImageWorker::workFinished, this, &MainWindow::onWorkFinished);
     workerThread_.start();
 
     // Set shortcut
@@ -76,10 +79,6 @@ MainWidget::MainWidget(QWidget* parent)
     ui.anticlockwiseButton->setShortcut(QKeySequence(QKeyCombination( Qt::Key_BracketLeft)));
     ui.undoButton->setShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Z)));
     ui.redoButton->setShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Y)));
-    ui.exportButton->setShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_E)));
-
-    QShortcut* importImg = new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_O)),
-    this, [this]() { importImage("", true); });
     QShortcut* addOne = new QShortcut(QKeySequence(QKeyCombination(Qt::Key_Up)),
     this, [this]() { setCropValue(cropValue() + 1); });
     QShortcut* decreaseOne = new QShortcut(QKeySequence(QKeyCombination(Qt::Key_Down)),
@@ -98,18 +97,22 @@ MainWidget::MainWidget(QWidget* parent)
     this, [this]() { startMakeEnergyImage(); });
 
     // Connects
-    connect(ui.clockwiseButton, &QPushButton::clicked, this, &MainWidget::clockwiseImage);
-    connect(ui.anticlockwiseButton, &QPushButton::clicked, this, &MainWidget::anticlockwiseImage);
-    connect(ui.horFlipButton, &QPushButton::clicked, this, &MainWidget::horizontalFlipImage);
-    connect(ui.verFlipButton, &QPushButton::clicked, this, &MainWidget::verticalFlipImage);
+    connect(ui.actionImport, &QAction::triggered, this, [this]() { importImage("", true); });
+    connect(ui.actionExport, &QAction::triggered, this, [this]() { exportImage("", true); });
+    connect(ui.exportButton, &QPushButton::clicked, this, [this]() { ui.actionExport->trigger(); });
+
+    connect(ui.clockwiseButton, &QPushButton::clicked, this, &MainWindow::clockwiseImage);
+    connect(ui.anticlockwiseButton, &QPushButton::clicked, this, &MainWindow::anticlockwiseImage);
+    connect(ui.horFlipButton, &QPushButton::clicked, this, &MainWindow::horizontalFlipImage);
+    connect(ui.verFlipButton, &QPushButton::clicked, this, &MainWindow::verticalFlipImage);
 
     connect(ui.resetRangeButton, &QPushButton::clicked, this, [this]()
     { setCropRange(0, currentImageSize().width()); });
     connect(ui.resetValueButton, &QPushButton::clicked, this, [this]()
     { setCropValue(0); });
 
-    connect(ui.undoButton, &QPushButton::clicked, this, &MainWidget::undo);
-    connect(ui.redoButton, &QPushButton::clicked, this, &MainWidget::redo);
+    connect(ui.undoButton, &QPushButton::clicked, this, &MainWindow::undo);
+    connect(ui.redoButton, &QPushButton::clicked, this, &MainWindow::redo);
 
     connect(ui.rangeSlider, &QRangeSlider::valueChanged, this, [this](unsigned int low, unsigned int high)
     { setCropRange(low, high); });
@@ -123,38 +126,36 @@ MainWidget::MainWidget(QWidget* parent)
     connect(ui.valueLineEdit, &QLineEdit::textEdited, this, [this](const QString& value)
     { setCropValue(value.toUInt()); });
 
-    connect(ui.cropButton, &QPushButton::clicked, this, &MainWidget::onCropButtonClicked);
-    connect(ui.makeEnergyImageButton, &QPushButton::clicked, this, &MainWidget::startMakeEnergyImage);
+    connect(ui.cropButton, &QPushButton::clicked, this, &MainWindow::onCropButtonClicked);
+    connect(ui.makeEnergyImageButton, &QPushButton::clicked, this, &MainWindow::startMakeEnergyImage);
 
     connect(ui.differentButton, &QPushButton::pressed, this, [this]()
     { toggleToOriginImageDisplay(true); });
     connect(ui.differentButton, &QPushButton::released, this, [this]()
     { toggleToOriginImageDisplay(false); });
 
-    connect(ui.exportButton, &QPushButton::clicked, this, [this]() { exportImage("", true); });
-
     // Update UI
     updateAllUi();
     updateText();
 }
 
-MainWidget::MainWidget(const QString& filename, QWidget* parent)
-    : MainWidget(parent)
+MainWindow::MainWindow(const QString& filename, QWidget* parent)
+    : MainWindow(parent)
 {
     importImage(filename, true);
     updateAllUi();
 }
 
-MainWidget::~MainWidget()
+MainWindow::~MainWindow()
 {
     worker_.stopWork();
     workerThread_.quit();
     workerThread_.wait();
 }
 
-bool MainWidget::importImage(QString filename, bool showMessageBoxOnError)
+bool MainWindow::importImage(QString filename, bool showMessageBoxOnError)
 {
-    if (isWorking_)
+    if (!ui.actionImport->isEnabled())
         return false;
 
     if (filename.isEmpty())
@@ -190,9 +191,9 @@ bool MainWidget::importImage(QString filename, bool showMessageBoxOnError)
     return false;
 }
 
-bool MainWidget::exportImage(QString filename, bool showMessageBoxOnError)
+bool MainWindow::exportImage(QString filename, bool showMessageBoxOnError)
 {
-    if (isWorking_)
+    if (!ui.actionExport->isEnabled())
         return false;
 
     if (filename.isEmpty())
@@ -222,7 +223,7 @@ bool MainWidget::exportImage(QString filename, bool showMessageBoxOnError)
     return image.save(filename);
 }
 
-bool MainWidget::setMaxRecordSteps(size_t steps)
+bool MainWindow::setMaxRecordSteps(size_t steps)
 {
     if (steps == 0)
         return false;
@@ -237,7 +238,7 @@ bool MainWidget::setMaxRecordSteps(size_t steps)
     return true;
 }
 
-bool MainWidget::setCropRange(size_t low, size_t high)
+bool MainWindow::setCropRange(size_t low, size_t high)
 {
     if (!getCurrent() || low >= high || high > static_cast<size_t>(currentImageSize().width()))
         return false;
@@ -250,7 +251,7 @@ bool MainWidget::setCropRange(size_t low, size_t high)
     return true;
 }
 
-bool MainWidget::setCropValue(size_t value)
+bool MainWindow::setCropValue(size_t value)
 {
     if (!getCurrent() || cropRangeHigh() <= cropRangeLow() || value > (cropRangeHigh() - cropRangeLow()))
         return false;
@@ -263,7 +264,7 @@ bool MainWidget::setCropValue(size_t value)
     return true;
 }
 
-void MainWidget::startCrop(bool highlightLowEnergyLine)
+void MainWindow::startCrop(bool highlightLowEnergyLine)
 {
     if (isWorking_ || !getCurrent() || cropValue() == 0)
         return;
@@ -291,7 +292,7 @@ void MainWidget::startCrop(bool highlightLowEnergyLine)
     emit startCropWork(parameters);
 }
 
-void MainWidget::startMakeEnergyImage()
+void MainWindow::startMakeEnergyImage()
 {
     if (isWorking_ || !getCurrent())
         return;
@@ -301,21 +302,21 @@ void MainWidget::startMakeEnergyImage()
     emit startMakeEnergyImageWork(currentImage());
 }
 
-void MainWidget::clockwiseImage()
+void MainWindow::clockwiseImage()
 {
     if (isWorking_ || currentImage().isNull())
         return;
     addNewImage(currentImage().transformed(QTransform().rotate(90)));
 }
 
-void MainWidget::anticlockwiseImage()
+void MainWindow::anticlockwiseImage()
 {
     if (isWorking_ || currentImage().isNull())
         return;
     addNewImage(currentImage().transformed(QTransform().rotate(-90)));
 }
 
-void MainWidget::horizontalFlipImage()
+void MainWindow::horizontalFlipImage()
 {
     if (isWorking_ || currentImage().isNull())
         return;
@@ -326,7 +327,7 @@ void MainWidget::horizontalFlipImage()
 #endif
 }
 
-void MainWidget::verticalFlipImage()
+void MainWindow::verticalFlipImage()
 {
     if (isWorking_ || currentImage().isNull())
         return;
@@ -337,7 +338,7 @@ void MainWidget::verticalFlipImage()
 #endif
 }
 
-bool MainWidget::undo()
+bool MainWindow::undo()
 {
     if (!isWorking_ && records_.current() && records_.current()->hasPrevious())
     {
@@ -349,7 +350,7 @@ bool MainWidget::undo()
     return false;
 }
 
-bool MainWidget::redo()
+bool MainWindow::redo()
 {
     if (!isWorking_ && records_.current() && records_.current()->hasNext())
     {
@@ -361,8 +362,15 @@ bool MainWidget::redo()
     return false;
 }
 
-void MainWidget::updateText()
+void MainWindow::updateText()
 {
+    setWindowTitle(EASYTR("Content-aware image cropper"));
+
+    ui.actionImport->setText(EASYTR("Import"));
+    ui.actionExport->setText(EASYTR("Export"));
+    ui.actionSettings->setText(EASYTR("Settings"));
+    ui.actionAbout->setText(EASYTR("About"));
+
     ui.clockwiseButton->setToolTip(EASYTR("Rotate 90 degrees clockwise (])"));
     ui.anticlockwiseButton->setToolTip(EASYTR("Rotate 90 degrees anticlockwise ([)"));
     ui.horFlipButton->setToolTip(EASYTR("Horizontal flip"));
@@ -381,22 +389,22 @@ void MainWidget::updateText()
     ui.exportButton->setToolTip(EASYTR("Ctrl + E"));
 }
 
-void MainWidget::keyPressEvent(QKeyEvent* event)
+void MainWindow::keyPressEvent(QKeyEvent* event)
 {
     // 切换原图显示。
     if (ui.differentButton->isEnabled() && event->key() == Qt::Key_Y && !event->isAutoRepeat())
         toggleToOriginImageDisplay(true);
-    TrWidget::keyPressEvent(event);
+    TrMainWindow::keyPressEvent(event);
 }
 
-void MainWidget::keyReleaseEvent(QKeyEvent* event)
+void MainWindow::keyReleaseEvent(QKeyEvent* event)
 {
     if (event->key() == Qt::Key_Y && !event->isAutoRepeat())
         toggleToOriginImageDisplay(false);
-    TrWidget::keyReleaseEvent(event);
+    TrMainWindow::keyReleaseEvent(event);
 }
 
-bool MainWidget::eventFilter(QObject* obj, QEvent* event)
+bool MainWindow::eventFilter(QObject* obj, QEvent* event)
 {
     if (obj == ui.graphicsView->viewport())
     {
@@ -432,33 +440,33 @@ bool MainWidget::eventFilter(QObject* obj, QEvent* event)
         }
     }
 
-    return TrWidget::eventFilter(obj, event);
+    return TrMainWindow::eventFilter(obj, event);
 }
 
-void MainWidget::onOneCropped(const QImage& image, size_t progress)
+void MainWindow::onOneCropped(const QImage& image, size_t progress)
 {
     ui.progressBar->setValue(progress);
     updateDisplayedImage(image);
 }
 
-void MainWidget::onWorkFinished(const QImage& image)
+void MainWindow::onWorkFinished(const QImage& image)
 {
     isWorking_ = false;
     addNewImage(image);
 }
 
-void MainWidget::onCropButtonClicked()
+void MainWindow::onCropButtonClicked()
 {
     isWorking_ ? worker_.stopWork() : startCrop(true);
 }
 
-void MainWidget::resizeEvent(QResizeEvent* event)
+void MainWindow::resizeEvent(QResizeEvent* event)
 {
-    TrWidget::resizeEvent(event);
+    TrMainWindow::resizeEvent(event);
     updateViewTransform();
 }
 
-void MainWidget::updateViewTransform()
+void MainWindow::updateViewTransform()
 {
     if (!pixmapItem_ || pixmapItem_->pixmap().isNull())
         return;
@@ -472,7 +480,7 @@ void MainWidget::updateViewTransform()
         ui.graphicsView->fitInView(scene_->sceneRect(), Qt::KeepAspectRatio);
 }
 
-void MainWidget::updateDisplayedImage(const QImage& image)
+void MainWindow::updateDisplayedImage(const QImage& image)
 {
     QPixmap pixmap = QPixmap::fromImage(image);
     pixmapItem_->setPixmap(pixmap);
@@ -480,7 +488,7 @@ void MainWidget::updateDisplayedImage(const QImage& image)
     updateViewTransform();
 }
 
-void MainWidget::updateRangeHintLines()
+void MainWindow::updateRangeHintLines()
 {
     bool visible = !currentImage().isNull() && !isWorking_;
     dimOverlayLeft_->setVisible(visible);
@@ -505,20 +513,20 @@ static double byteToMB(size_t byte)
     return static_cast<double>(byte) / rate;
 }
 
-void MainWidget::updateFileInfoUi()
+void MainWindow::updateFileInfoUi()
 {
     ui.filenameLabel->setText(filename().isEmpty() ? EASYTR("No Image") : filename());
     ui.filenameLabel->setToolTip(filename());
     ui.filesizeLabel->setText(QString("%1 MB").arg(byteToMB(filesize())));
 }
 
-void MainWidget::updateImageSizeHintUi()
+void MainWindow::updateImageSizeHintUi()
 {
     ui.originSizeLabel->setText(QString("%1 x %2").arg(originImageSize().width()).arg(originImageSize().height()));
     ui.resultSizeLabel->setText(QString("%1 x %2").arg(resultImageSize().width()).arg(resultImageSize().height()));
 }
 
-void MainWidget::updateRangeRelatedUi()
+void MainWindow::updateRangeRelatedUi()
 {
     const int imgWidth = currentImageSize().width();
 
@@ -558,7 +566,7 @@ void MainWidget::updateRangeRelatedUi()
     updateRangeHintLines();
 }
 
-void MainWidget::updateValueRalatedUi()
+void MainWindow::updateValueRalatedUi()
 {
     size_t cropRange = (cropRangeHigh() > cropRangeLow()) ? (cropRangeHigh() - cropRangeLow()) : 0;
 
@@ -578,35 +586,42 @@ void MainWidget::updateValueRalatedUi()
     ui.resetValueButton->setEnabled(cropRange != 0);
 }
 
-void MainWidget::updateUndoRedoUi()
+void MainWindow::updateUndoRedoUi()
 {
     bool condition = (!isWorking_ && records_.current());
     ui.undoButton->setEnabled(condition && records_.current()->hasPrevious());
     ui.redoButton->setEnabled(condition && records_.current()->hasNext());
 }
 
-void MainWidget::updateProgressBarAndButtonUi()
+void MainWindow::updateProgressBarAndButtonUi()
 {
     QList<QWidget*> opButtons = {
         ui.clockwiseButton,
         ui.anticlockwiseButton,
         ui.horFlipButton,
-        ui.verFlipButton,
-        ui.exportButton
+        ui.verFlipButton
     };
 
+    bool ok = !isWorking_ && !currentImageSize().isEmpty();
     for (const auto& btn : opButtons)
-        btn->setEnabled(!isWorking_ && !currentImageSize().isEmpty());
+        btn->setEnabled(ok);
+
+    ui.actionImport->setEnabled(!isWorking_);
+    ui.actionExport->setEnabled(ok);
+    ui.exportButton->setEnabled(ui.actionExport->isEnabled());
+
     ui.differentButton->setEnabled(!isWorking_ && getCurrent());
+
     ui.cropButton->setText(isWorking_ ? EASYTR("Stop") : EASYTR("Crop"));
     ui.cropButton->setEnabled(isWorking_ ? true : (records_.current() && cropValue() != 0));
-    ui.makeEnergyImageButton->setEnabled(!isWorking_ && !currentImageSize().isEmpty());
+    ui.makeEnergyImageButton->setEnabled(ok);
+
     updateUndoRedoUi();
 
     ui.progressBar->setVisible(isWorking_);
 }
 
-void MainWidget::updateAllUi()
+void MainWindow::updateAllUi()
 {
     updateFileInfoUi();
     updateImageSizeHintUi();
@@ -615,7 +630,7 @@ void MainWidget::updateAllUi()
     updateProgressBarAndButtonUi();
 }
 
-void MainWidget::addNewImage(const QImage& image)
+void MainWindow::addNewImage(const QImage& image)
 {
     if (maxRecordSteps_ == 0)
         return;
@@ -632,7 +647,7 @@ void MainWidget::addNewImage(const QImage& image)
     updateAllUi();
 }
 
-void MainWidget::toggleToOriginImageDisplay(bool enable)
+void MainWindow::toggleToOriginImageDisplay(bool enable)
 {
     if (enable)
     {

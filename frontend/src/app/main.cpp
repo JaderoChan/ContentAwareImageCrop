@@ -7,7 +7,7 @@
 #include <common/dark_palette.h>
 #include "logo_icon.h"
 #include "settings.h"
-#include "main_widget.h"
+#include "main_window.h"
 
 int main(int argc, char* argv[])
 {
@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
     // 设置暗色调色板
     setDarkPalette();
 
-    MainWidget wgt;
+    MainWindow wgt;
     wgt.show();
 
     int ret = a.exec();

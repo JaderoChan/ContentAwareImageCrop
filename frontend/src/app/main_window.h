@@ -9,19 +9,19 @@
 #include <qthread>
 
 #include <config.h>
-#include <trwidgets/trwidget.h>
+#include <trwidgets/trmainwindow.h>
 #include <common/linked_list.h>
 #include "crop_image_worker.h"
-#include "ui_main_widget.h"
+#include "ui_main_window.h"
 
-class MainWidget : public TrWidget
+class MainWindow : public TrMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWidget(QWidget* parent = nullptr);
-    explicit MainWidget(const QString& filename, QWidget* parent = nullptr);
-    ~MainWidget();
+    explicit MainWindow(QWidget* parent = nullptr);
+    explicit MainWindow(const QString& filename, QWidget* parent = nullptr);
+    ~MainWindow();
 
     // 如果 filename 指定为空则打开文件对话框。
     bool importImage(QString filename, bool showMessageBoxOnError);
@@ -125,7 +125,7 @@ private:
     const RecordStep* getCurrent() const { return records_.current() ? &records_.current()->value() : nullptr; }
     RecordStep* getCurrent() { return records_.current() ? &records_.current()->value() : nullptr; }
 
-    Ui::MainWidget ui;
+    Ui::MainWindow ui;
 
     QGraphicsScene* scene_ = nullptr;
     QGraphicsPixmapItem* pixmapItem_ = nullptr;
