@@ -149,13 +149,21 @@ if(DEPLOYQT_AFTER_BUILD)
         # TODO
     endif()
 
-    add_custom_command(
-        TARGET ${APP_TITLE} POST_BUILD
-        COMMAND ${DEPLOYQT}
-        $<$<CONFIG:Debug>:--debug>$<$<NOT:$<CONFIG:Debug>>:--release>
-        $<TARGET_FILE:${APP_TITLE}>
-        $<$<PLATFORM_ID:Darwin>:-codesign=->
-    )
+    if(APPLE)
+        add_custom_command(
+            TARGET ${APP_TITLE} POST_BUILD
+            COMMAND ${DEPLOYQT}
+            $<TARGET_BUNDLE_DIR:${APP_TITLE}>
+            -codesign=-
+        )
+    else()
+        add_custom_command(
+            TARGET ${APP_TITLE} POST_BUILD
+            COMMAND ${DEPLOYQT}
+            $<$<CONFIG:Debug>:--debug>$<$<NOT:$<CONFIG:Debug>>:--release>
+            $<TARGET_FILE:${APP_TITLE}>
+        )
+    endif()
 endif()
 
 # MacOS DMG 打包
@@ -163,9 +171,9 @@ option(CREATE_DMG "Create DMG for MacOS, create-dmg is required." OFF)
 if(APPLE AND CREATE_DMG)
     add_custom_command(
         TARGET ${APP_TITLE} POST_BUILD
-        COMMAND ${SCRIPTS_DIR}/create_dmg.sh
+        COMMAND /bin/sh ${SCRIPTS_DIR}/create_dmg.sh
         ${APP_TITLE}
         ${APP_ICON}
-        $<TARGET_FILE_DIR:${APP_TITLE}>
+        $<PATH:GET_PARENT_PATH,$<TARGET_BUNDLE_DIR:${APP_TITLE}>>
     )
 endif()
