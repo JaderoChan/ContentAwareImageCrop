@@ -33,7 +33,7 @@ void saveSettings(const Settings& settings)
     WR_FIELD(qsettings, settings, language);
     WR_FIELD(qsettings, settings, isMaximized);
     WR_FIELD(qsettings, settings, lastWindowGeo);
-    WR_FIELD(qsettings, settings, cropUpdateT);
+    qsettings.setValue("cropUpdateT", static_cast<qulonglong>(settings.cropUpdateT));
     WR_FIELD(qsettings, settings, isHighlightLine);
     WR_FIELD(qsettings, settings, isAntialiasingLine);
     WR_FIELD(qsettings, settings, isLimitImageSize);

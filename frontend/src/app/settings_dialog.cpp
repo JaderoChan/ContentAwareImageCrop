@@ -20,7 +20,7 @@ SettingsDialog::SettingsDialog(const Settings& settings, QWidget* parent)
     size_t updateTs[] = {0, 1, 3, 7};
     for (size_t i = 0, count = sizeof(updateTs) / sizeof(size_t); i < count; ++i)
     {
-        ui.updateLevelComboBox->addItem("", updateTs[i]);
+        ui.updateLevelComboBox->addItem("", static_cast<qulonglong>(updateTs[i]));
         if (updateTs[i] == settings.cropUpdateT)
             ui.updateLevelComboBox->setCurrentIndex(i);
     }
