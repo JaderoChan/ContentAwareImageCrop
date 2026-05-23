@@ -6,7 +6,7 @@
 [![CMake](https://img.shields.io/badge/CMake-%3E%3D3.17-064F8C?logo=cmake)](https://cmake.org/)
 [![Qt](https://img.shields.io/badge/Qt-5%20%7C%206-41CD52?logo=qt)](https://www.qt.io/)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)](https://github.com/JaderoChan/ContentAwareImageCrop)
-[![Version](https://img.shields.io/badge/Version-1.0.0-brightgreen)](https://github.com/JaderoChan/ContentAwareImageCrop/releases)
+[![Version](https://img.shields.io/badge/Version-1.0.3-brightgreen)](https://github.com/JaderoChan/ContentAwareImageCrop/releases)
 
 A content-aware image cropping tool based on the **Seam Carving** algorithm. It intelligently detects and removes the lowest-energy pixel paths (seams) from an image, reducing its dimensions while preserving the most visually significant regions.
 

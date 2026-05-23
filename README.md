@@ -6,7 +6,7 @@
 [![CMake](https://img.shields.io/badge/CMake-%3E%3D3.17-064F8C?logo=cmake)](https://cmake.org/)
 [![Qt](https://img.shields.io/badge/Qt-5%20%7C%206-41CD52?logo=qt)](https://www.qt.io/)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)](https://github.com/JaderoChan/ContentAwareImageCrop)
-[![Version](https://img.shields.io/badge/Version-1.0.0-brightgreen)](https://github.com/JaderoChan/ContentAwareImageCrop/releases)
+[![Version](https://img.shields.io/badge/Version-1.0.3-brightgreen)](https://github.com/JaderoChan/ContentAwareImageCrop/releases)
 
 基于 **接缝雕刻（Seam Carving）** 算法的内容感知图像裁切工具。通过识别并移除图像中能量最低的像素路径（接缝），在缩减图像尺寸的同时最大限度地保留图像中的高细节区域。
 
