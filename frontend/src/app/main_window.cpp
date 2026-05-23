@@ -13,10 +13,12 @@
 #include <qurl.h>
 
 #include <common/strict_int_validator.h>
+#include "settings.h"
 
 // 裁切范围提示线颜色。
 constexpr QColor RANGE_HINT_LINE_COLOR(0, 102, 255);
 
+// 弹出提示框便利函数。
 void popupMessageBox(
     QMessageBox::Icon icon, const QString& title, const QString& text,
     const QString& buttonText, QMessageBox::ButtonRole buttonRole = QMessageBox::AcceptRole,
@@ -38,10 +40,7 @@ MainWindow::MainWindow(QWidget* parent)
 {
     ui.setupUi(this);
 
-    // 默认最大化
-    showMaximized();
-
-    // Init graphics view
+    // 初始化图形显示视图。
     scene_ = new QGraphicsScene(this);
     pixmapItem_ = scene_->addPixmap(QPixmap());
 
@@ -134,6 +133,13 @@ MainWindow::MainWindow(QWidget* parent)
     connect(ui.differentButton, &QPushButton::released, this, [this]()
     { toggleToOriginImageDisplay(false); });
 
+    // 根据设置初始化窗口和变量
+    auto settings = loadSettings();
+    resize(settings.lastWindowSize);
+    if (settings.isMaximized)
+        showMaximized();
+    lastOpenDirectory_ = settings.lastOpenDirectory;
+
     // Update UI
     updateAllUi();
     updateText();
@@ -148,6 +154,12 @@ MainWindow::MainWindow(const QString& filename, QWidget* parent)
 
 MainWindow::~MainWindow()
 {
+    // 保存窗口大小信息。
+    auto settings = loadSettings();
+    settings.isMaximized = isMaximized();
+    settings.lastWindowSize = size();
+
+    // 退出工作线程。
     worker_.stopWork();
     workerThread_.quit();
     workerThread_.wait();
@@ -173,6 +185,9 @@ bool MainWindow::importImage(QString filename, bool showMessageBoxOnError)
     }
 
     lastOpenDirectory_ = QFileInfo(filename).dir().path();
+    auto settings = loadSettings();
+    settings.lastOpenDirectory = lastOpenDirectory_;
+    saveSettings(settings);
 
     QImage image;
     if (image.load(filename))
@@ -211,6 +226,9 @@ bool MainWindow::exportImage(QString filename, bool showMessageBoxOnError)
     }
 
     lastOpenDirectory_ = QFileInfo(filename).dir().path();
+    auto settings = loadSettings();
+    settings.lastOpenDirectory = lastOpenDirectory_;
+    saveSettings(settings);
 
     if (!records_.current())
     {
@@ -275,13 +293,13 @@ void MainWindow::startCrop(bool highlightLowEnergyLine)
     parameters.cropRangeHigh = static_cast<int>(cropRangeHigh());
     parameters.cropValue = cropValue();
 
-    // TODO: add application configure.
-    // parameters.cropUpdateT
-    // parameters.limitImageSize
-    // parameters.highlightLineColor
-    // parameters.isLimitImageSize
-    // parameters.isHighlightLine
-    // parameters.isAntialiasingLine
+    auto settings = loadSettings();
+    parameters.cropUpdateT = settings.cropUpdateT;
+    parameters.isHighlightLine = settings.isHighlightLine;
+    parameters.isAntialiasingLine = settings.isAntialiasingLine;
+    parameters.isLimitImageSize = settings.isLimitImageSize;
+    parameters.highlightLineColor = settings.highlightColor;
+    parameters.imageLimitedSize = settings.imageLimitedSize;
 
     isWorking_ = true;
     ui.progressBar->setMinimum(0);
@@ -364,6 +382,8 @@ bool MainWindow::redo()
 
 void MainWindow::updateText()
 {
+    setUpdatesEnabled(false);
+
     setWindowTitle(EASYTR("Content-aware image cropper"));
 
     ui.menuFile->setTitle(EASYTR("File"));
@@ -389,6 +409,9 @@ void MainWindow::updateText()
     ui.makeEnergyImageButton->setToolTip(EASYTR("Shift + Enter"));
     ui.exportButton->setText(EASYTR("Export"));
     ui.exportButton->setToolTip(EASYTR("Ctrl + E"));
+
+    setUpdatesEnabled(true);
+    update();
 }
 
 void MainWindow::keyPressEvent(QKeyEvent* event)

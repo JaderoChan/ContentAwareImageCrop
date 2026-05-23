@@ -50,8 +50,8 @@ void CropImageWorker::startCropWork(CropImageParameters parameters)
     shouldClose_.store(false);
 
     const auto&
-    [qimg, cropValue, cropRangeLow, cropRangeHigh, cropUpdateT,
-     limitSize, highlightColor, isLimit, isHighlight, isAntialiasing] = parameters;
+    [qimg, cropRangeLow, cropRangeHigh, cropValue, cropUpdateT,
+     isHighlight, isAntialiasing, isLimit, highlightColor, limitedSize] = parameters;
 
     Image img = converter::toImage(qimg);
 
@@ -65,9 +65,9 @@ void CropImageWorker::startCropWork(CropImageParameters parameters)
             break;
 
         std::vector<IPos> line;
-        if (isLimit && (img.rows > limitSize.height() || img.cols > limitSize.width()))
+        if (isLimit && (img.rows > limitedSize.height() || img.cols > limitedSize.width()))
         {
-            Image scaled = limitImageScale(img, limitSize.width(), limitSize.height());
+            Image scaled = limitImageScale(img, limitedSize.width(), limitedSize.height());
             // 将范围边界映射到缩放图坐标
             double ratio = static_cast<double>(scaled.cols) / img.cols;
             int scaledLow  = std::clamp(static_cast<int>(std::round(colLow  * ratio)), 0, scaled.cols - 1);
