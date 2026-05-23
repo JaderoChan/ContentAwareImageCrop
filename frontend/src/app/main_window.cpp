@@ -366,6 +366,8 @@ void MainWindow::updateText()
 {
     setWindowTitle(EASYTR("Content-aware image cropper"));
 
+    ui.menuFile->setTitle(EASYTR("File"));
+    ui.menuOption->setTitle(EASYTR("Option"));
     ui.actionImport->setText(EASYTR("Import"));
     ui.actionExport->setText(EASYTR("Export"));
     ui.actionSettings->setText(EASYTR("Settings"));
