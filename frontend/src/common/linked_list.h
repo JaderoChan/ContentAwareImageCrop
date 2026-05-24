@@ -78,7 +78,7 @@ public:
     { return current_; }
 
     template <typename U>
-    void insertPrevious(U&& value)
+    _NodeTp* insertPrevious(U&& value)
     {
         if (current_)
         {
@@ -93,17 +93,20 @@ public:
 
             current_ = newNode;
             length_++;
+            return current_;
         }
         else if (!head_)
         {
             head_ = new _NodeTp(std::forward<U>(value));
             current_ = head_;
             length_++;
+            return current_;
         }
+        return nullptr;
     }
 
     template <typename U>
-    void insertNext(U&& value)
+    _NodeTp* insertNext(U&& value)
     {
         if (current_)
         {
@@ -118,16 +121,19 @@ public:
 
             current_ = newNode;
             length_++;
+            return current_;
         }
         else if (!head_)
         {
             head_ = new _NodeTp(std::forward<U>(value));
             current_ = head_;
             length_++;
+            return current_;
         }
+        return nullptr;
     }
 
-    void removePrevious()
+    bool removePrevious()
     {
         if (current_ && current_->hasPrevious())
         {
@@ -146,10 +152,12 @@ public:
             }
 
             length_--;
+            return true;
         }
+        return false;
     }
 
-    void removeNext()
+    bool removeNext()
     {
         if (current_ && current_->hasNext())
         {
@@ -166,10 +174,12 @@ public:
             delete next;
 
             length_--;
+            return true;
         }
+        return false;
     }
 
-    void removeAllPrevious()
+    bool removeAllPrevious()
     {
         if (current_ && current_->hasPrevious())
         {
@@ -185,10 +195,12 @@ public:
 
             current_->setPrevious(nullptr);
             head_ = current_;
+            return true;
         }
+        return false;
     }
 
-    void removeAllNext()
+    bool removeAllNext()
     {
         if (current_ && current_->hasNext())
         {
@@ -203,10 +215,12 @@ public:
             }
 
             current_->setNext(nullptr);
+            return true;
         }
+        return false;
     }
 
-    void removeHead()
+    bool removeHead()
     {
         if (head_)
         {
@@ -219,10 +233,12 @@ public:
             if (next) next->setPrevious(nullptr);
 
             length_--;
+            return true;
         }
+        return false;
     }
 
-    void removeCurrent()
+    bool removeCurrent()
     {
         if (current_)
         {
@@ -257,7 +273,9 @@ public:
             }
 
             length_--;
+            return true;
         }
+        return false;
     }
 
     void clear()
