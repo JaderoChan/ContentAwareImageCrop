@@ -85,7 +85,7 @@ void SettingsDialog::updateText()
     }
 
     ui.updateLevelTextLabel->setText(EASYTR("Update Level"));
-    ui.updateLevelTextLabel->setToolTip(EASYTR("UpdateLevel.Tooltip"));
+    ui.updateLevelTextLabel->setToolTip(EASYTR("UpdateLevel.ToolTip"));
     for (size_t i = 0; i < ui.updateLevelComboBox->count(); ++i)
     {
         size_t updateT = ui.updateLevelComboBox->itemData(i).toULongLong();
@@ -97,7 +97,7 @@ void SettingsDialog::updateText()
     }
 
     ui.highlighLineCheckBox->setText(EASYTR("Highlight Crop Line"));
-    ui.highlighLineCheckBox->setToolTip(EASYTR("HighlightLine.Tooltip"));
+    ui.highlighLineCheckBox->setToolTip(EASYTR("HighlightLine.ToolTip"));
 
     ui.limitImageSizeCheckBox->setText(EASYTR("Limit Image Size"));
     ui.limitImageSizeCheckBox->setToolTip(EASYTR("LimitImageSize.ToolTip"));
@@ -108,5 +108,5 @@ void SettingsDialog::updateText()
     ui.antialiasingLineCheckBox->setToolTip(EASYTR("AntialiasingLine.ToolTip"));
 
     ui.maxRecordStepsTextLabel->setText(EASYTR("Max Record Steps"));
-    ui.maxRecordStepsTextLabel->setToolTip(EASYTR("MaxRecordSteps.Tooltip"));
+    ui.maxRecordStepsTextLabel->setToolTip(EASYTR("MaxRecordSteps.ToolTip"));
 }
