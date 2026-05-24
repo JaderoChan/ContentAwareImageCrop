@@ -7,4 +7,4 @@
 - [x] 将范围裁切的工作交给工作线程，以避免 UI 线程卡顿。
 - [ ] 修改图标。
 - [x] 完成设置选项的 ToolTip。
-- [ ] 加入 MaxRecordSteps 设置选项。
+- [x] 加入 MaxRecordSteps 设置选项。
