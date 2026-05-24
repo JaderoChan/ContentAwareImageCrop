@@ -27,6 +27,8 @@
     "Limit Image Size": "限制裁切图片大小",
     "LimitImageSize.ToolTip": "裁切操作前对过大的图像进行尺寸限制。此尺寸越小，裁切速度越快，但裁切质量可能会有所降低。（裁切速度过快时，可能导致界面更新卡顿，可调整画面更新等级解决。裁切速度过慢时通过减小此尺寸能够有效提高裁切速度。）",
     "Make Energy Image": "生成能量图",
+    "Max Record Steps": "最大可用步数",
+    "MaxRecordSteps.Tooltip": "此值越大程序撤销与重做操作的可用步数越多，但可能导致更多的内存消耗。",
     "No Image": "无图像",
     "No files are open.": "没有文件被打开。",
     "No files are save.": "没有文件被保存。",

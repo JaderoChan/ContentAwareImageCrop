@@ -118,6 +118,8 @@ MainWindow::MainWindow(QWidget* parent)
 
         if (newSettings.language != settings.language)
             setLanguage(newSettings.language);
+        if (newSettings.maxRecordSteps != settings.maxRecordSteps)
+            setMaxRecordSteps(newSettings.maxRecordSteps);
 
         saveSettings(newSettings);
     });
@@ -161,6 +163,7 @@ MainWindow::MainWindow(QWidget* parent)
         setGeometry(settings.lastWindowGeo);
     if (settings.isMaximized)
         showMaximized();
+    maxRecordSteps_    = settings.maxRecordSteps;
     lastOpenDirectory_ = settings.lastOpenDirectory;
 
     // Update UI
@@ -216,6 +219,9 @@ bool MainWindow::importImage(QString filename, bool showMessageBoxOnError)
     QImage image;
     if (image.load(filename))
     {
+        records_.removeAllNext();
+        while (records_.length() >= maxRecordSteps_ && records_.removeHead());
+
         RecordStep step(image, image, filename, QFileInfo(filename).size(), 0, image.width(), 0);
         records_.insertNext(step);
 
@@ -271,8 +277,7 @@ bool MainWindow::setMaxRecordSteps(size_t steps)
         return false;
 
     maxRecordSteps_ = steps;
-    while (records_.length() > maxRecordSteps_)
-        records_.removeHead();
+    while (records_.length() > maxRecordSteps_ && records_.removeHead());
 
     updateDisplayedImage(currentImage());
     updateAllUi();
@@ -688,8 +693,7 @@ void MainWindow::addNewImage(const QImage& image)
         return;
 
     records_.removeAllNext();
-    while (records_.length() >= maxRecordSteps_)
-        records_.removeHead();
+    while (records_.length() >= maxRecordSteps_ && records_.removeHead());
 
     records_.insertNext(getCurrent() ?
         RecordStep(originImage(), image, filename(), filesize(), 0, image.isNull() ? 0 : image.width(), 0) :

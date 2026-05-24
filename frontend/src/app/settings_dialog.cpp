@@ -41,6 +41,8 @@ SettingsDialog::SettingsDialog(const Settings& settings, QWidget* parent)
 
     ui.antialiasingLineCheckBox->setChecked(settings.isAntialiasingLine);
 
+    ui.maxRecordStepsSpinBox->setValue(settings.maxRecordSteps);
+
     updateText();
 }
 
@@ -65,6 +67,8 @@ Settings SettingsDialog::execForSettings()
     settings.imageLimitedSize = QSize(width, height);
 
     settings.isAntialiasingLine = ui.antialiasingLineCheckBox->isChecked();
+
+    settings.maxRecordSteps = ui.maxRecordStepsSpinBox->value();
 
     return settings;
 }
@@ -102,4 +106,7 @@ void SettingsDialog::updateText()
 
     ui.antialiasingLineCheckBox->setText(EASYTR("Antialiasing Crop Line"));
     ui.antialiasingLineCheckBox->setToolTip(EASYTR("AntialiasingLine.ToolTip"));
+
+    ui.maxRecordStepsTextLabel->setText(EASYTR("Max Record Steps"));
+    ui.maxRecordStepsTextLabel->setToolTip(EASYTR("MaxRecordSteps.Tooltip"));
 }

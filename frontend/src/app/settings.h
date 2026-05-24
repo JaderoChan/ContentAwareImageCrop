@@ -20,6 +20,7 @@ struct Settings
     QColor highlightColor;
     QSize imageLimitedSize;
 
+    size_t maxRecordSteps;
     QString lastOpenDirectory;
 };
 

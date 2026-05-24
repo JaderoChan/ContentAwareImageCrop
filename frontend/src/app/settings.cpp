@@ -2,6 +2,8 @@
 
 #include <qsettings.h>
 
+#include <config.h>
+
 #define RD_FIELD(qsettings, settings, field, default) \
 (settings.field = qsettings.value(#field, default).value<decltype(settings.field)>())
 #define WR_FIELD(qsettings, settings, field) \
@@ -21,6 +23,12 @@ Settings loadSettings()
     RD_FIELD(qsettings, settings, isLimitImageSize, true);
     RD_FIELD(qsettings, settings, highlightColor, QColor(255, 255, 0));
     RD_FIELD(qsettings, settings, imageLimitedSize, QSize(640, 640));
+    RD_FIELD(qsettings, settings, maxRecordSteps, DEFAULT_MAX_RECORD_STEP);
+    // Fall back invalid value to default.
+    settings.maxRecordSteps =
+        settings.maxRecordSteps == 0
+        ? DEFAULT_MAX_RECORD_STEP
+        : settings.maxRecordSteps;
     RD_FIELD(qsettings, settings, lastOpenDirectory, "");
 
     return settings;
@@ -39,6 +47,7 @@ void saveSettings(const Settings& settings)
     WR_FIELD(qsettings, settings, isLimitImageSize);
     WR_FIELD(qsettings, settings, highlightColor);
     WR_FIELD(qsettings, settings, imageLimitedSize);
+    WR_FIELD(qsettings, settings, maxRecordSteps);
     WR_FIELD(qsettings, settings, lastOpenDirectory);
 
     qsettings.setValue("Language", settings.language);
