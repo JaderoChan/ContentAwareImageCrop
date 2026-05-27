@@ -565,8 +565,8 @@ void MainWindow::updateRangeHintLines()
 
 static double byteToMB(size_t byte)
 {
-    constexpr size_t rate = 1024 * 1024;
-    return static_cast<double>(byte) / rate;
+    constexpr size_t ratio = 1024 * 1024;
+    return static_cast<double>(byte) / ratio;
 }
 
 void MainWindow::updateFileInfoUi()
