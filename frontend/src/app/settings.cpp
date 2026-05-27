@@ -47,7 +47,7 @@ void saveSettings(const Settings& settings)
     WR_FIELD(qsettings, settings, isLimitImageSize);
     WR_FIELD(qsettings, settings, highlightColor);
     WR_FIELD(qsettings, settings, imageLimitedSize);
-    WR_FIELD(qsettings, settings, maxRecordSteps);
+    qsettings.setValue("maxRecordSteps", static_cast<qulonglong>(settings.maxRecordSteps));
     WR_FIELD(qsettings, settings, lastOpenDirectory);
 
     qsettings.setValue("Language", settings.language);
