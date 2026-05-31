@@ -32,5 +32,17 @@
 
     <key>CFBundleCopyRight</key>
     <string>@APP_COPYRIGHT_TEXT</string>
+
+    <key>CFBundleDisplayName</key>
+    <string>Content-aware Image Crop</string>
+
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+
+    <key>CFBundleLocalizations</key>
+    <array>
+        <string>en</string>
+        <string>zh-Hans</string>
+    </array>
 </dict>
 </plist>

@@ -806,6 +806,12 @@
                 </item>
                 <item>
                  <widget class="QPushButton" name="makeEnergyImageButton">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string>Make Energy Image</string>
                   </property>
@@ -871,6 +877,9 @@
    <property name="shortcut">
     <string>Ctrl+O</string>
    </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
   </action>
   <action name="actionExport">
    <property name="text">
@@ -878,6 +887,9 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+E</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
    </property>
   </action>
   <action name="actionSettings">
@@ -887,10 +899,16 @@
    <property name="shortcut">
     <string>Ctrl+,</string>
    </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
   </action>
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
    </property>
   </action>
  </widget>
