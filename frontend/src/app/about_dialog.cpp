@@ -4,7 +4,7 @@
 
 #define URL_HTML \
 "<html><head/><body><p>%1: <a href=\"%2\"><span style=\" \
-text-decoration: underline; color:#0000ff;\">%3</span></a></p></body></html>"
+text-decoration: underline; color:#0066ff;\">%3</span></a></p></body></html>"
 
 AboutDialog::AboutDialog(QWidget* parent)
     : TrDialog(parent)
