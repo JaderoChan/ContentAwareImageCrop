@@ -166,8 +166,8 @@ if(DEPLOYQT_AFTER_BUILD)
     endif()
 endif()
 
-# MacOS DMG 打包
-option(CREATE_DMG "Create DMG for MacOS, create-dmg is required." OFF)
+# macOS DMG 打包
+option(CREATE_DMG "Create DMG for macOS, create-dmg is required." OFF)
 if(APPLE AND CREATE_DMG)
     add_custom_command(
         TARGET ${APP_TITLE} POST_BUILD

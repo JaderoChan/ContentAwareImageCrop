@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
     a.setOrganizationName(APP_ORGANIZATION);
     a.setApplicationName(APP_TITLE);
     a.setApplicationVersion(APP_VERSION);
-    // MacOS 平台下不显式设置程序图标。
+    // macOS 平台下不显式设置程序图标。
 #ifndef Q_OS_MAC
     a.setWindowIcon(getLogoIcon());
 #endif
