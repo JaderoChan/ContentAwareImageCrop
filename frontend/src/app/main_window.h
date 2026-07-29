@@ -6,7 +6,7 @@
 #include <qsize.h>
 #include <qgraphicsscene.h>
 #include <qgraphicsitem.h>
-#include <qthread>
+#include <qthread.h>
 
 #include <config.h>
 #include <trwidgets/trmainwindow.h>
