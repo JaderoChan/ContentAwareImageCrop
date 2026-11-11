@@ -129,8 +129,8 @@ cmake --build build --config Release
 
 ## 应用截图
 
-![sufer_origin](./screenshot/sufer_origin.png]
-![sufer_cropped](./screenshot/sufer_cropped.png]
+![sufer_origin](./screenshot/sufer_origin.png)
+![sufer_cropped](./screenshot/sufer_cropped.png)
 
 ---
 
